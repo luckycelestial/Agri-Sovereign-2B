@@ -9,10 +9,9 @@ import {
   Cpu,
   Menu,
   X,
-  ShieldCheck,
-  Leaf,
-  Volume2,
+  Zap,
 } from 'lucide-react'
+import ThemeToggle from './ThemeToggle'
 
 interface SidebarProps {
   activeTab: string
@@ -32,30 +31,26 @@ export default function Sidebar({ activeTab, setActiveTab, gpuStatus }: SidebarP
     {
       id: 'advisor',
       label: 'Farmer AI Assistant',
-      tamilLabel: 'வேளாண் AI வழிகாட்டி',
+      tamilLabel: 'உழவன் சகாயக் AI',
       icon: Sparkles,
-      badge: 'TNAU Grounded',
     },
     {
       id: 'tokenizer',
       label: 'Morpheme Tokenizer',
       tamilLabel: 'தமிழ் சொல்லாக்க அரங்கம்',
       icon: Database,
-      badge: 'τ = 1.18',
     },
     {
       id: 'whatsapp',
       label: 'Neonize WhatsApp',
       tamilLabel: 'வாட்ஸ்அப் பாட் களம்',
       icon: MessageCircle,
-      badge: 'Live Bot',
     },
     {
       id: 'benchmark',
       label: '50-Q Benchmark Suite',
       tamilLabel: '50-வினா மதிப்பீட்டறிக்கை',
       icon: Activity,
-      badge: '92% Acc',
     },
   ]
 
@@ -66,80 +61,63 @@ export default function Sidebar({ activeTab, setActiveTab, gpuStatus }: SidebarP
 
   return (
     <>
-      {/* Mobile Top Header with Hamburger */}
-      <div className="md:hidden sticky top-0 z-50 bg-[#070e22]/95 backdrop-blur-md border-b border-blue-500/20 px-4 py-2.5 flex items-center justify-between shadow-xl">
+      {/* Mobile Top Header with Hamburger & ThemeToggle */}
+      <div className="md:hidden sticky top-0 z-50 bg-[var(--bg-card)] border-b border-[var(--border)] px-4 py-2.5 flex items-center justify-between shadow-sm transition-colors duration-300">
         <div className="flex items-center space-x-2.5">
-          <img
-            src="/logo.png"
-            alt="Uzhavan Sahayak Logo"
-            className="w-9 h-9 rounded-xl object-cover border border-amber-500/40 shadow-md"
-          />
+          <div className="w-8 h-8 rounded-lg bg-[var(--accent-primary)] text-white flex items-center justify-center text-sm shadow-md">
+            🌾
+          </div>
           <div>
-            <h1 className="text-sm font-bold text-gray-100 flex items-center gap-1">
-              உழவன் சகாயக்
-              <span className="text-[10px] px-1.5 py-0.2 bg-amber-500/20 text-amber-300 font-mono rounded border border-amber-500/30">
-                2B
-              </span>
-            </h1>
-            <p className="text-[10px] text-amber-400 font-medium">Uzhavan-Sahayak AI</p>
+            <h1 className="text-sm font-bold text-[var(--text-primary)]">Agri-Sovereign 2B</h1>
+            <p className="text-[10px] text-[var(--accent-primary)] font-medium">உழவன் சகாயக்</p>
           </div>
         </div>
 
-        <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="p-2 rounded-xl bg-slate-900/80 border border-blue-500/30 text-amber-300 hover:bg-slate-800 transition-colors"
-          aria-label="Toggle navigation menu"
-        >
-          {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
+        <div className="flex items-center space-x-2">
+          <ThemeToggle />
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="p-2 rounded-xl bg-[var(--bg-card-subtle)] border border-[var(--border)] text-[var(--text-primary)]"
+            aria-label="Toggle navigation menu"
+          >
+            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        </div>
       </div>
 
       {/* Backdrop for Mobile */}
       {mobileOpen && (
         <div
           onClick={() => setMobileOpen(false)}
-          className="md:hidden fixed inset-0 bg-black/80 z-40 backdrop-blur-sm"
+          className="md:hidden fixed inset-0 bg-black/60 z-40 backdrop-blur-sm"
         />
       )}
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed md:static inset-y-0 left-0 z-40 w-72 bg-gradient-to-b from-[#070e22] via-[#0b1736] to-[#070e22] border-r border-blue-500/15 flex flex-col justify-between p-4 transition-transform duration-300 ease-in-out shadow-2xl ${
+        className={`fixed md:static inset-y-0 left-0 z-40 w-72 bg-white dark:bg-[var(--bg-card)] border-r border-[var(--border)] shadow-[4px_0_20px_-4px_rgba(0,0,0,0.06),1px_0_3px_rgba(0,0,0,0.02)] flex flex-col justify-between p-4 transition-all duration-300 ease-in-out ${
           mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
       >
         {/* Top Logo & Title */}
-        <div className="space-y-5">
-          <div className="px-2 pt-2 flex flex-col items-center text-center space-y-2.5 border-b border-blue-500/15 pb-4">
-            <div className="relative group">
-              <div className="absolute -inset-1 bg-gradient-to-r from-amber-500 to-emerald-500 rounded-2xl blur-sm opacity-50 group-hover:opacity-80 transition duration-500"></div>
-              <img
-                src="/logo.png"
-                alt="Uzhavan Sahayak Logo"
-                className="relative w-16 h-16 rounded-2xl object-cover border-2 border-amber-400/60 shadow-xl"
-              />
+        <div className="space-y-6">
+          <div className="flex items-center space-x-3 px-2 pt-2">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[var(--accent-secondary)] to-[var(--accent-primary)] text-white flex items-center justify-center text-xl shadow-md">
+              🌾
             </div>
             <div>
-              <h1 className="text-base font-extrabold text-white tracking-tight flex items-center justify-center gap-1.5 font-tamil">
-                உழவன் சகாயக்
-                <span className="text-[10px] px-1.5 py-0.5 bg-amber-500/20 text-amber-300 font-mono font-bold rounded-full border border-amber-500/40">
-                  2B SLM
-                </span>
+              <h1 className="text-base font-bold text-[var(--text-primary)] tracking-tight flex items-center gap-1.5">
+                Agri-Sovereign
+                <span className="text-[10px] font-mono text-[var(--accent-primary)] font-semibold">2B</span>
               </h1>
-              <p className="text-xs text-amber-400/90 font-semibold tracking-wide">
-                UZHAVAN-SAHAYAK
-              </p>
-              <p className="text-[10px] text-gray-400 mt-0.5">
-                AI for a Prosperous Tamil Nadu
-              </p>
+              <p className="text-xs text-[var(--accent-primary)] font-medium">உழவன் சகாயக்</p>
             </div>
           </div>
 
-          {/* Navigation Links (Clean Institutional Style) */}
+          {/* Navigation Links */}
           <nav className="space-y-1.5">
-            <div className="px-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-amber-400/80 flex items-center justify-between">
-              <span>பயன்பாட்டு பிரிவுகள்</span>
-              <span className="text-[9px] text-gray-400 font-normal">Navigation</span>
+            <div className="px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-[var(--text-secondary)]">
+              பயன்பாட்டு பிரிவுகள் (Navigation)
             </div>
             {navItems.map((item) => {
               const Icon = item.icon
@@ -149,67 +127,52 @@ export default function Sidebar({ activeTab, setActiveTab, gpuStatus }: SidebarP
                 <button
                   key={item.id}
                   onClick={() => handleSelectTab(item.id)}
-                  className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-left transition-all ${
+                  className={`w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-left transition-all duration-200 cursor-pointer ${
                     isActive
-                      ? 'bg-gradient-to-r from-blue-900/60 to-slate-900/80 border border-amber-500/50 text-white shadow-lg shadow-amber-500/5'
-                      : 'text-gray-300 hover:text-white hover:bg-slate-800/50 border border-transparent'
+                      ? 'bg-[var(--accent-subtle)] border border-[var(--accent-primary)] text-[var(--text-primary)] shadow-sm font-semibold'
+                      : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-subtle)] border border-transparent'
                   }`}
                 >
-                  <div className="flex items-center space-x-3 min-w-0">
-                    <div className={`p-1.5 rounded-lg ${isActive ? 'bg-amber-500/20 text-amber-300' : 'bg-slate-800/80 text-gray-400'}`}>
-                      <Icon className="w-4 h-4" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className={`text-sm font-semibold truncate ${isActive ? 'text-amber-200' : 'text-gray-200'}`}>
-                        {item.tamilLabel}
-                      </p>
-                      <p className="text-[11px] text-gray-400 truncate font-normal">
-                        {item.label}
-                      </p>
-                    </div>
+                  <Icon
+                    className={`w-5 h-5 shrink-0 ${
+                      isActive ? 'text-[var(--accent-primary)]' : 'text-[var(--text-secondary)]'
+                    }`}
+                  />
+                  <div className="min-w-0">
+                    <p className={`text-sm font-semibold truncate ${isActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)]'}`}>
+                      {item.label}
+                    </p>
+                    <p className="text-[11px] text-[var(--text-secondary)] truncate font-normal">
+                      {item.tamilLabel}
+                    </p>
                   </div>
-                  {item.badge && (
-                    <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-mono font-medium shrink-0 ${
-                      isActive 
-                        ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' 
-                        : 'bg-slate-800 text-gray-400 border border-white/5'
-                    }`}>
-                      {item.badge}
-                    </span>
-                  )}
                 </button>
               )
             })}
           </nav>
         </div>
 
-        {/* Institutional Trust & Compliance Badge */}
-        <div className="space-y-2 pt-3">
-          <div className="p-3 rounded-xl bg-slate-950/60 border border-blue-500/20 space-y-2 text-xs">
-            <div className="flex items-center justify-between font-mono text-[11px]">
-              <span className="flex items-center gap-1.5 text-amber-300 font-semibold">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> CIBRC 1968
-              </span>
-              <span className="text-emerald-400 flex items-center gap-1 text-[10px]">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                Verified
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2 text-[11px] font-mono text-gray-300 pt-1.5 border-t border-white/5">
-              <div>
-                <span className="text-gray-400 block text-[9px] uppercase">RAG Knowledge</span>
-                <span className="text-white text-[11px]">TNAU & ICAR</span>
-              </div>
-              <div>
-                <span className="text-gray-400 block text-[9px] uppercase">Tamil Voice</span>
-                <span className="text-amber-300 text-[11px]">ValluvarNeural</span>
-              </div>
-            </div>
+        {/* Clean Subtle Hardware Telemetry Card */}
+        <div className="p-3.5 rounded-xl bg-[var(--bg-card-subtle)] border border-[var(--border)] space-y-2 text-xs transition-colors duration-300">
+          <div className="flex items-center justify-between text-[var(--text-secondary)] font-mono text-[11px]">
+            <span className="flex items-center gap-1.5 text-[var(--accent-primary)] font-semibold">
+              <Cpu className="w-3.5 h-3.5" /> RTX 3050 (6GB)
+            </span>
+            <span className="text-[var(--accent-primary)] flex items-center gap-1 font-semibold">
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-primary)] animate-pulse" />
+              Online
+            </span>
           </div>
 
-          <div className="text-center text-[10px] text-gray-400">
-            விவசாயிக்கு விழிப்புணர்வான தோழன்
+          <div className="grid grid-cols-2 gap-2 text-[11px] font-mono text-[var(--text-secondary)] pt-1 border-t border-[var(--border)]">
+            <div>
+              <span className="text-[var(--text-muted)] block text-[10px]">Adapter</span>
+              <span className="text-[var(--text-primary)] font-medium">176 MB LoRA</span>
+            </div>
+            <div>
+              <span className="text-[var(--text-muted)] block text-[10px]">Efficiency</span>
+              <span className="text-[var(--accent-primary)] font-bold">89.6% Save</span>
+            </div>
           </div>
         </div>
 
@@ -217,4 +180,3 @@ export default function Sidebar({ activeTab, setActiveTab, gpuStatus }: SidebarP
     </>
   )
 }
-

@@ -14,6 +14,7 @@ import {
   ShieldCheck,
 } from 'lucide-react'
 import FormattedMarkdownText from './FormattedMarkdownText'
+import { useTheme } from '@/context/ThemeContext'
 
 interface WhatsAppMessage {
   id: string
@@ -207,6 +208,8 @@ const PRESET_SIMULATION_SCENARIOS = [
 ]
 
 export default function WhatsAppLiveExperience() {
+  const { theme } = useTheme()
+  const isDark = theme === 'dark'
   const [activeContact, setActiveContact] = useState<FarmerContact>(INITIAL_CONTACTS[0])
   const [threads, setThreads] = useState<Record<string, WhatsAppMessage[]>>(INITIAL_THREADS)
   const [inputMsg, setInputMsg] = useState('')
@@ -384,36 +387,46 @@ export default function WhatsAppLiveExperience() {
   }
 
   return (
-    <div className="flex flex-col lg:flex-row h-full rounded-2xl border border-white/10 overflow-hidden shadow-2xl bg-[#0c1317]">
+    <div className={`flex flex-col lg:flex-row h-full rounded-2xl border overflow-hidden shadow-[0_6px_25px_-4px_rgba(0,0,0,0.1),0_2px_8px_-1px_rgba(0,0,0,0.04)] transition-colors duration-300 ${
+      isDark ? 'border-[#202c33] bg-[#0c1317]' : 'border-[var(--border-subtle)] bg-[#FFFFFF]'
+    }`}>
       
       {/* 📱 Left Column: Farmer Chats & Neonize QR Panel */}
-      <div className="w-full lg:w-72 bg-[#111b21] border-r border-[#202c33] flex flex-col">
+      <div className={`w-full lg:w-72 flex flex-col transition-colors duration-300 ${
+        isDark ? 'bg-[#111b21] border-r border-[#202c33]' : 'bg-[#FFFFFF] border-r border-[#E9EDEF]'
+      }`}>
         
         {/* Left Header */}
-        <div className="p-3 bg-[#202c33] flex items-center justify-between border-b border-[#222d34]">
+        <div className={`p-3 flex items-center justify-between border-b transition-colors duration-300 ${
+          isDark ? 'bg-[#202c33] border-[#222d34]' : 'bg-[#F0F2F5] border-[#E9EDEF]'
+        }`}>
           <div className="flex items-center space-x-2.5">
-            <div className="w-8 h-8 rounded-full bg-emerald-700 flex items-center justify-center font-bold text-white text-xs">
+            <div className="w-8 h-8 rounded-full bg-[var(--accent-primary)] flex items-center justify-center font-bold text-white text-xs shadow">
               🌾
             </div>
             <div>
-              <h3 className="text-xs font-semibold text-gray-100">WhatsApp Hub</h3>
-              <p className="text-[10px] text-emerald-400 font-mono">Neonize Daemon (5001)</p>
+              <h3 className={`text-xs font-semibold ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>WhatsApp Hub</h3>
+              <p className="text-[10px] text-[var(--accent-primary)] font-mono">Neonize Daemon (5001)</p>
             </div>
           </div>
 
           <button
             onClick={() => setQrModalOpen(true)}
             title="Scan QR Code with Phone WhatsApp"
-            className="p-1.5 rounded-lg bg-[#111b21] hover:bg-[#2a3942] text-emerald-400 border border-emerald-500/20 transition-all flex items-center gap-1 text-[11px]"
+            className={`p-1.5 rounded-lg text-[var(--accent-primary)] border transition-all flex items-center gap-1 text-[11px] cursor-pointer ${
+              isDark ? 'bg-[#111b21] hover:bg-[#2a3942] border-emerald-500/20' : 'bg-white hover:bg-gray-100 border-[#D1E7D1] shadow-sm'
+            }`}
           >
             <QrCode className="w-3.5 h-3.5" />
             <span>QR Scan</span>
           </button>
         </div>
 
-        {/* Quick Inbound Preset Simulator Section (Clean, subtle links) */}
-        <div className="p-2.5 bg-[#111b21] border-b border-[#202c33] space-y-1.5">
-          <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
+        {/* Quick Inbound Preset Simulator Section */}
+        <div className={`p-2.5 border-b space-y-1.5 transition-colors duration-300 ${
+          isDark ? 'bg-[#111b21] border-[#202c33]' : 'bg-[#F0F2F5]/50 border-[#E9EDEF]'
+        }`}>
+          <div className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">
             உடனடி வினா சிமுலேஷன்
           </div>
 
@@ -423,16 +436,18 @@ export default function WhatsAppLiveExperience() {
                 key={idx}
                 disabled={simulating}
                 onClick={() => triggerInboundSimulation(scenario)}
-                className={`text-left p-1.5 rounded-md border text-xs transition-colors ${
+                className={`text-left p-1.5 rounded-md border text-xs transition-colors cursor-pointer ${
                   activeContact.id === scenario.contactId
-                    ? 'bg-emerald-950/70 border-emerald-500/40 text-emerald-200'
-                    : 'bg-[#202c33] hover:bg-[#2a3942] border-[#2a3942] text-gray-300'
+                    ? 'bg-[var(--accent-subtle)] border-[var(--accent-primary)] text-[var(--accent-primary)] font-semibold'
+                    : isDark
+                    ? 'bg-[#202c33] hover:bg-[#2a3942] border-[#2a3942] text-gray-300'
+                    : 'bg-white hover:bg-emerald-50 border-[#E9EDEF] text-gray-800 shadow-sm'
                 }`}
               >
                 <span className="font-semibold text-[11px] block truncate">
                   {scenario.label}
                 </span>
-                <span className="text-[10px] text-gray-400 block truncate">
+                <span className="text-[10px] text-[var(--text-secondary)] block truncate">
                   {scenario.district}
                 </span>
               </button>
@@ -441,16 +456,20 @@ export default function WhatsAppLiveExperience() {
         </div>
 
         {/* Contacts List */}
-        <div className="flex-1 overflow-y-auto divide-y divide-[#202c33]/40">
-          <div className="px-3 py-1.5 text-[10px] font-bold text-gray-500 uppercase tracking-wider bg-[#111b21]">
-            உரையாடல்கள்
+        <div className={`flex-1 overflow-y-auto divide-y ${isDark ? 'divide-[#202c33]/40' : 'divide-[#E9EDEF]'}`}>
+          <div className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider ${
+            isDark ? 'bg-[#111b21] text-gray-400' : 'bg-[#F0F2F5] text-gray-500'
+          }`}>
+            உரையாடல்கள் (Active Chats)
           </div>
           {INITIAL_CONTACTS.map((contact) => (
             <div
               key={contact.id}
               onClick={() => setActiveContact(contact)}
               className={`p-2.5 flex items-center space-x-2.5 cursor-pointer transition-colors ${
-                activeContact.id === contact.id ? 'bg-[#2a3942]' : 'hover:bg-[#202c33]/60'
+                activeContact.id === contact.id
+                  ? isDark ? 'bg-[#2a3942]' : 'bg-[#E9EDEF]'
+                  : isDark ? 'hover:bg-[#202c33]/60' : 'hover:bg-[#F0F2F5]'
               }`}
             >
               <div
@@ -460,11 +479,11 @@ export default function WhatsAppLiveExperience() {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
-                  <h4 className="text-xs font-semibold text-gray-100 truncate">{contact.name}</h4>
-                  <span className="text-[10px] text-gray-400">{contact.lastTime}</span>
+                  <h4 className={`text-xs font-semibold truncate ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>{contact.name}</h4>
+                  <span className="text-[10px] text-[var(--text-secondary)]">{contact.lastTime}</span>
                 </div>
-                <p className="text-[11px] text-gray-400 truncate">{contact.lastMessage}</p>
-                <span className="text-[10px] text-emerald-400 font-mono">
+                <p className="text-[11px] text-[var(--text-secondary)] truncate">{contact.lastMessage}</p>
+                <span className="text-[10px] text-[var(--accent-primary)] font-mono font-medium">
                   {contact.district}
                 </span>
               </div>
@@ -475,22 +494,26 @@ export default function WhatsAppLiveExperience() {
       </div>
 
       {/* 💬 Right Column: Authentic WhatsApp Chat Interface */}
-      <div className="flex-1 flex flex-col bg-[#0b141a] relative">
+      <div className={`flex-1 flex flex-col relative transition-colors duration-300 ${
+        isDark ? 'bg-[#0b141a]' : 'bg-[#efeae2]'
+      }`}>
         
         {/* WhatsApp Top Header Bar */}
-        <div className="p-2.5 bg-[#202c33] flex items-center justify-between border-b border-[#222d34] z-10">
+        <div className={`p-2.5 flex items-center justify-between border-b z-10 transition-colors duration-300 ${
+          isDark ? 'bg-[#202c33] border-[#222d34]' : 'bg-[#F0F2F5] border-[#E9EDEF]'
+        }`}>
           <div className="flex items-center space-x-2.5">
-            <div className={`w-9 h-9 rounded-full ${activeContact.avatarColor} flex items-center justify-center font-bold text-white text-xs`}>
+            <div className={`w-9 h-9 rounded-full ${activeContact.avatarColor} flex items-center justify-center font-bold text-white text-xs shadow`}>
               {activeContact.name.charAt(0)}
             </div>
             <div>
-              <h3 className="text-xs font-semibold text-gray-100 flex items-center gap-1.5">
+              <h3 className={`text-xs font-semibold flex items-center gap-1.5 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
                 {activeContact.name}
-                <span className="text-[10px] text-gray-400 font-mono font-normal">
+                <span className={`text-[10px] font-mono font-normal ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                   ({activeContact.phone})
                 </span>
               </h3>
-              <p className="text-[11px] text-emerald-400 flex items-center gap-1">
+              <p className="text-[11px] text-[var(--accent-primary)] flex items-center gap-1 font-medium">
                 {isTyping ? (
                   <span className="italic font-mono animate-pulse">
                     உழவன் சகாயக் தட்டச்சு செய்கிறது...
@@ -504,12 +527,14 @@ export default function WhatsAppLiveExperience() {
         </div>
 
         {/* WhatsApp Chat Canvas with Classic Pattern */}
-        <div className="flex-1 overflow-y-auto p-3 md:p-5 space-y-3 wa-wallpaper-dark">
+        <div className="flex-1 overflow-y-auto p-3 md:p-5 space-y-3 wa-wallpaper">
           
           {/* Security Notice */}
           <div className="flex justify-center my-1">
-            <div className="px-3 py-1 rounded bg-[#182229] text-[11px] text-[#8696a0] flex items-center gap-1.5 text-center max-w-md shadow">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+            <div className={`px-3 py-1 rounded text-[11px] flex items-center gap-1.5 text-center max-w-md shadow-sm border ${
+              isDark ? 'bg-[#182229] border-white/5 text-[#8696a0]' : 'bg-white border-[#E9EDEF] text-[#54656f]'
+            }`}>
+              <ShieldCheck className="w-3.5 h-3.5 text-[var(--accent-primary)] shrink-0" />
               <span>
                 CIBRC பூச்சிக்கொல்லி சட்டம் 1968 மற்றும் TNAU வழிகாட்டல் அடிப்படையில் தானியங்கி ஆலோசனை.
               </span>
@@ -529,7 +554,7 @@ export default function WhatsAppLiveExperience() {
                 {/* Sender Name in Group/Bot format */}
                 <div
                   className={`text-[11px] font-semibold mb-1 ${
-                    m.isMe ? 'text-emerald-200' : 'text-emerald-400'
+                    m.isMe ? isDark ? 'text-emerald-200' : 'text-emerald-800' : 'text-[var(--accent-primary)]'
                   }`}
                 >
                   {m.senderName}
@@ -539,12 +564,15 @@ export default function WhatsAppLiveExperience() {
                 <div className="text-xs md:text-[13.5px] leading-relaxed tamil-text">
                   <FormattedMarkdownText
                     text={m.text}
-                    boldClassName={m.isMe ? 'font-bold text-emerald-100' : 'font-bold text-[#25d366]'}
-                    italicClassName={m.isMe ? 'font-medium text-emerald-200' : 'font-medium text-amber-300'}
+                    boldClassName={m.isMe ? (isDark ? 'font-bold text-emerald-100' : 'font-bold text-emerald-900') : 'font-bold text-[var(--accent-primary)]'}
+                    italicClassName={m.isMe ? 'font-medium text-emerald-200' : 'font-medium text-amber-600 dark:text-amber-300'}
                   />
                 </div>
 
-                <div className="flex items-center justify-end space-x-1 mt-1 text-[10px] text-gray-400 font-mono">
+                {/* Time & Read Receipts */}
+                <div className={`flex items-center justify-end space-x-1 mt-1 text-[10px] font-mono ${
+                  isDark ? 'text-gray-400' : 'text-gray-500'
+                }`}>
                   <span suppressHydrationWarning>{m.time}</span>
                   {m.isMe && (
                     <CheckCheck className="w-3 h-3 text-[#53bdeb]" />
@@ -558,9 +586,9 @@ export default function WhatsAppLiveExperience() {
           {isTyping && (
             <div className="flex justify-start animate-message">
               <div className="wa-incoming-bubble px-3 py-2 rounded-lg shadow flex items-center space-x-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce" />
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce [animation-delay:0.2s]" />
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce [animation-delay:0.4s]" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-primary)] animate-bounce" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-primary)] animate-bounce [animation-delay:0.2s]" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-primary)] animate-bounce [animation-delay:0.4s]" />
               </div>
             </div>
           )}
@@ -569,10 +597,12 @@ export default function WhatsAppLiveExperience() {
         </div>
 
         {/* WhatsApp Bottom Input Bar */}
-        <div className="p-2 bg-[#202c33] flex items-center space-x-2 border-t border-[#222d34]">
+        <div className={`p-2 flex items-center space-x-2 border-t transition-colors duration-300 ${
+          isDark ? 'bg-[#202c33] border-[#222d34]' : 'bg-[#F0F2F5] border-[#E9EDEF]'
+        }`}>
           <button
             type="button"
-            className="p-1.5 text-gray-400 hover:text-gray-200"
+            className="p-1.5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer"
             title="Smiley"
           >
             <Smile className="w-4 h-4" />
@@ -580,7 +610,7 @@ export default function WhatsAppLiveExperience() {
           
           <button
             type="button"
-            className="p-1.5 text-gray-400 hover:text-gray-200"
+            className="p-1.5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer"
             title="Attach Photo / Document"
           >
             <Paperclip className="w-4 h-4" />
@@ -598,14 +628,16 @@ export default function WhatsAppLiveExperience() {
               }
             }}
             placeholder="விவசாயக் கேள்வியை இங்கே டைப் செய்யவும்..."
-            className="flex-1 bg-[#2a3942] border-none outline-none text-gray-100 placeholder-gray-400 text-xs md:text-sm px-3 py-2 rounded-lg tamil-text focus:ring-1 focus:ring-emerald-500"
+            className={`flex-1 border-none outline-none text-xs md:text-sm px-3 py-2 rounded-lg tamil-text focus:ring-1 focus:ring-[var(--accent-primary)] ${
+              isDark ? 'bg-[#2a3942] text-gray-100 placeholder-gray-400' : 'bg-white text-gray-900 placeholder-gray-500 shadow-inner'
+            }`}
           />
 
           {/* WhatsApp Send / Mic Button */}
           {inputMsg.trim() ? (
             <button
               onClick={handleSendManual}
-              className="p-2 rounded-full bg-emerald-500 hover:bg-emerald-600 text-gray-950 font-bold transition-transform active:scale-95 shadow-md flex items-center justify-center"
+              className="p-2 rounded-full bg-[var(--accent-primary)] hover:brightness-110 text-white font-bold transition-transform active:scale-95 shadow-md flex items-center justify-center cursor-pointer"
             >
               <Send className="w-3.5 h-3.5" />
             </button>
@@ -614,7 +646,9 @@ export default function WhatsAppLiveExperience() {
               type="button"
               onClick={() => triggerInboundSimulation(PRESET_SIMULATION_SCENARIOS[0])}
               title="சிமுலேட் செய்ய கிளிக் செய்க"
-              className="p-2 rounded-full bg-[#111b21] hover:bg-emerald-600 hover:text-gray-950 text-emerald-400 transition-all flex items-center justify-center"
+              className={`p-2 rounded-full transition-all flex items-center justify-center cursor-pointer ${
+                isDark ? 'bg-[#111b21] hover:bg-emerald-600 hover:text-gray-950 text-emerald-400' : 'bg-white hover:bg-emerald-600 hover:text-white text-emerald-600 shadow-sm'
+              }`}
             >
               <Mic className="w-3.5 h-3.5" />
             </button>

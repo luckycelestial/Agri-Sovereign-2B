@@ -1,153 +1,299 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Tamil:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --font-jakarta: 'Plus Jakarta Sans', sans-serif;
-  --font-tamil: 'Noto Sans Tamil', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+/* ==========================================================================
+   Subtle & Professional Agricultural Design System - CSS Custom Properties
+   ========================================================================== */
 
-  /* Institutional Deep Navy & Gold Design Tokens */
-  --navy-darkest: #050a17;
-  --navy-canvas: #070e22;
-  --navy-surface: #0c1836;
-  --navy-surface-elevated: #11224a;
-  --navy-soft: #172c5e;
-  --gold-accent: #f59e0b;
-  --gold-bright: #fbbf24;
-  --gold-soft: rgba(245, 158, 11, 0.15);
-  --emerald-accent: #10b981;
-  --border-subtle: rgba(59, 130, 246, 0.15);
-  --border-gold: rgba(245, 158, 11, 0.25);
+:root,
+[data-theme="dark"],
+.dark {
+  /* Dark Mode (Deep, Sleek & Modern Obsidian - Clean & Spacious) */
+  --bg-main: #0B0F0D;
+  --bg-surface: #131A16;
+  --bg-hover: #1A221E;
+  --primary-accent: #229954;
+  --primary-accent-hover: #1D8348;
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --border-subtle: #1E2722;
+  --highlight-bg: #141B17;
+  --warning: #F87171;
+
+  /* Aliases for Full Compatibility */
+  --bg-primary: var(--bg-main);
+  --bg-card: var(--bg-surface);
+  --bg-card-subtle: var(--bg-hover);
+  --bg-card-glass: rgba(19, 26, 22, 0.92);
+  --border: #243029;
+  --text-muted: var(--text-secondary);
+  --accent-primary: #34D399;
+  --accent-secondary: #22C55E;
+  --accent-hover: #10B981;
+  --accent-subtle: var(--highlight-bg);
+  --accent-contrast: #FFFFFF;
+  
+  --warning-alert: var(--warning);
+  --warning-bg: rgba(248, 113, 113, 0.12);
+  --warning-border: rgba(248, 113, 113, 0.35);
+
+  /* Notice / Important Notification (Warm Golden Harvest Amber - Compliments Green, NOT Red) */
+  --notice: #FBBF24;
+  --notice-bg: rgba(245, 158, 11, 0.12);
+  --notice-border: rgba(245, 158, 11, 0.32);
+  
+  --success: #34D399;
+  --danger: var(--warning);
+  
+  --card-shadow: 0 8px 28px -4px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.35);
+  --card-radius: 12px;
+  
+  --scrollbar-track: #0B0F0D;
+  --scrollbar-thumb: #1E2722;
+  --scrollbar-thumb-hover: #34D399;
+  
+  --wa-bg: #0b141a;
+  --wa-incoming: #202c33;
+  --wa-incoming-text: #E9EDEF;
+  --wa-outgoing: #005c4b;
+  --wa-outgoing-text: #E9EDEF;
+  
+  --mesh-opacity: 0.03;
+}
+
+[data-theme="light"],
+.light {
+  /* Light Mode (Clean, Spacious & Modern Neutral) */
+  --bg-main: #F8FAFC;
+  --bg-surface: #FFFFFF;
+  --bg-hover: #F1F5F9;
+  --primary-accent: #4A7C59;
+  --primary-accent-hover: #3A6347;
+  --text-primary: #0F172A;
+  --text-secondary: #64748B;
+  --border-subtle: #E2E8F0;
+  --highlight-bg: #F8FAFC;
+  --warning: #C0392B; /* Earthy Carmine / Terracotta Crimson - Naturally Compliments Sage Forest Green #4A7C59 */
+
+  /* Aliases for Full Compatibility */
+  --bg-primary: var(--bg-main);
+  --bg-card: var(--bg-surface);
+  --bg-card-subtle: var(--bg-hover);
+  --bg-card-glass: rgba(255, 255, 255, 0.94);
+  --border: var(--border-subtle);
+  --text-muted: var(--text-secondary);
+  --accent-primary: var(--primary-accent);
+  --accent-secondary: var(--primary-accent-hover);
+  --accent-hover: var(--primary-accent-hover);
+  --accent-subtle: #F1F5F9;
+  --accent-contrast: #FFFFFF;
+  
+  --warning-alert: var(--warning);
+  --warning-bg: rgba(192, 57, 43, 0.08);
+  --warning-border: rgba(192, 57, 43, 0.25);
+
+  /* Notice / Important Notification (Warm Harvest Amber / Golden Ochre - Compliments Green, NOT Red) */
+  --notice: #B45309;
+  --notice-bg: rgba(245, 158, 11, 0.08);
+  --notice-border: rgba(245, 158, 11, 0.28);
+  
+  --success: #4A7C59;
+  --danger: var(--warning);
+  
+  --card-shadow: 0 4px 18px -3px rgba(0, 0, 0, 0.07), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
+  --card-radius: 12px;
+  
+  --scrollbar-track: #F8FAFC;
+  --scrollbar-thumb: #CBD5E1;
+  --scrollbar-thumb-hover: #4A7C59;
+  
+  --wa-bg: #F8FAFC;
+  --wa-incoming: #FFFFFF;
+  --wa-incoming-text: #0F172A;
+  --wa-outgoing: #E8F3EC;
+  --wa-outgoing-text: #0F172A;
+  
+  --mesh-opacity: 0.02;
+}
+
+/* ==========================================================================
+   Base Typography & Layout (High Readability for Tamil & English)
+   ========================================================================== */
+
+:root {
+  --font-primary: 'Noto Sans Tamil', 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+html {
+  font-size: 16px;
 }
 
 body {
-  font-family: var(--font-jakarta), var(--font-tamil), system-ui, -apple-system, sans-serif;
-  background-color: var(--navy-canvas);
-  background-image: 
-    radial-gradient(circle at 15% 15%, rgba(30, 58, 138, 0.2) 0%, transparent 40%),
-    radial-gradient(circle at 85% 85%, rgba(245, 158, 11, 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.4) 0%, transparent 70%);
-  background-attachment: fixed;
-  color: #f1f5f9;
+  font-family: 'Noto Sans Tamil', 'Inter', sans-serif;
+  line-height: 1.6;
+  font-size: 1rem;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
   min-height: 100vh;
   overflow-x: hidden;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
-.tamil-text {
-  font-family: var(--font-tamil), var(--font-jakarta), sans-serif;
+h1, h2, h3, h4, h5, h6 {
+  line-height: 1.4;
+  font-family: 'Noto Sans Tamil', 'Inter', sans-serif;
 }
 
-/* Institutional Navy Gradient */
-.bg-navy-gradient {
-  background: linear-gradient(150deg, #070e22 0%, #10214a 55%, #0b1736 100%);
+/* Enhanced line-height for Tamil script readability */
+.tamil-text, [lang="ta"] {
+  font-family: 'Noto Sans Tamil', 'Inter', sans-serif;
+  line-height: 1.6;
 }
 
-.bg-navy-card {
-  background: linear-gradient(145deg, rgba(12, 24, 54, 0.85) 0%, rgba(8, 16, 38, 0.9) 100%);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(59, 130, 246, 0.18);
+/* ==========================================================================
+   Cards & Glass Surfaces
+   ========================================================================== */
+
+.agri-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
 }
 
-.bg-navy-card-gold {
-  background: linear-gradient(145deg, rgba(16, 32, 70, 0.9) 0%, rgba(12, 24, 54, 0.95) 100%);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(245, 158, 11, 0.3);
-  box-shadow: 0 10px 30px -10px rgba(245, 158, 11, 0.12);
-}
-
-/* Glassmorphic UI Panels */
 .glass-panel {
-  background: rgba(12, 24, 54, 0.78);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  background-color: var(--bg-card-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .glass-panel-subtle {
-  background: rgba(10, 20, 46, 0.6);
+  background-color: var(--bg-card-subtle);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(59, 130, 246, 0.12);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--card-radius);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .glass-panel-hover {
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .glass-panel-hover:hover {
-  border-color: rgba(245, 158, 11, 0.45);
-  box-shadow: 0 10px 30px -10px rgba(245, 158, 11, 0.18);
+  border-color: var(--accent-primary);
+  box-shadow: 0 8px 24px -6px rgba(46, 125, 50, 0.2);
   transform: translateY(-1px);
 }
 
 .glass-card-active {
-  background: rgba(23, 44, 94, 0.6);
-  border-color: rgba(245, 158, 11, 0.6);
-  box-shadow: 0 0 25px rgba(245, 158, 11, 0.2);
+  background-color: var(--accent-subtle);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 20px var(--accent-subtle);
 }
 
-/* Shadow utilities */
-.shadow-card-soft {
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4), 0 2px 6px -1px rgba(0, 0, 0, 0.2);
+/* ==========================================================================
+   Interactive Controls & Badges
+   ========================================================================== */
+
+.btn-primary {
+  background-color: var(--accent-primary);
+  color: var(--accent-contrast);
+  border-radius: 10px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+.btn-primary:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
 }
 
-.shadow-gold-glow {
-  box-shadow: 0 0 25px rgba(245, 158, 11, 0.25);
+.badge-success {
+  background-color: var(--accent-subtle);
+  border: 1px solid var(--accent-primary);
+  color: var(--accent-primary);
 }
 
-.shadow-emerald-glow {
-  box-shadow: 0 0 25px rgba(16, 185, 129, 0.25);
+.badge-warning {
+  background-color: var(--warning-bg);
+  border: 1px solid var(--warning-border);
+  color: var(--warning-alert);
 }
 
-/* WhatsApp Dark Theme Background Pattern */
-.wa-wallpaper-dark {
-  background-color: #0b141a;
-  background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 0);
+.badge-notice {
+  background-color: var(--notice-bg);
+  border: 1px solid var(--notice-border);
+  color: var(--notice);
+}
+
+.critical-advice-box {
+  background-color: var(--highlight-bg);
+  border: 1px solid var(--border-subtle);
+  padding: 12px 16px;
+  border-radius: 10px;
+  margin: 10px 0;
+  color: var(--text-primary);
+}
+
+/* ==========================================================================
+   WhatsApp Live Simulator Theme Utilities
+   ========================================================================== */
+
+.wa-wallpaper {
+  background-color: var(--wa-bg);
+  background-image: radial-gradient(rgba(100, 100, 100, 0.1) 1px, transparent 0);
   background-size: 24px 24px;
+  transition: background-color 0.3s ease;
 }
 
 .wa-incoming-bubble {
-  background-color: #202c33;
-  color: #e9edef;
+  background-color: var(--wa-incoming);
+  color: var(--wa-incoming-text);
   border-top-left-radius: 2px;
+  border-radius: 10px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
 .wa-outgoing-bubble {
-  background-color: #005c4b;
-  color: #e9edef;
+  background-color: var(--wa-outgoing);
+  color: var(--wa-outgoing-text);
   border-top-right-radius: 2px;
+  border-radius: 10px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
-/* Custom Scrollbars */
+/* ==========================================================================
+   Custom Scrollbars
+   ========================================================================== */
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #050a17;
+  background: var(--scrollbar-track);
 }
 ::-webkit-scrollbar-thumb {
-  background: #172c5e;
+  background: var(--scrollbar-thumb);
   border-radius: 9999px;
+  transition: background 0.2s ease;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #f59e0b;
+  background: var(--scrollbar-thumb-hover);
 }
 
-@keyframes pulseSlow {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(1.02); }
-}
+/* ==========================================================================
+   Animations
+   ========================================================================== */
 
-.animate-pulse-slow {
-  animation: pulseSlow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-/* Smooth message animations */
 @keyframes messageIn {
   from {
     opacity: 0;
@@ -161,4 +307,16 @@ body {
 
 .animate-message {
   animation: messageIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Theme switch smooth transition */
+* {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-duration: 200ms;
+  transition-timing-function: ease-in-out;
+}
+
+/* Exclude active continuous animations from global transition */
+.animate-spin, .animate-pulse, .animate-wave {
+  transition: none !important;
 }

@@ -11,6 +11,11 @@ import urllib.request
 import urllib.parse
 from typing import Dict, Any, List
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
+
 sys.path.append(os.path.dirname(__file__))
 from safety_validator import CIBRCSafetyValidator
 from build_agricultural_rag import AgriculturalRAGEngine

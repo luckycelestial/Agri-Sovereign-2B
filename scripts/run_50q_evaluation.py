@@ -11,6 +11,11 @@ import json
 import time
 from typing import Dict, List, Any
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
+
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "scripts"))
 from safety_validator import CIBRCSafetyValidator
 from build_agricultural_rag import AgriculturalRAGEngine
