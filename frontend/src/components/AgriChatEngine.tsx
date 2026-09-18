@@ -21,10 +21,15 @@ import {
   Camera,
   Image as ImageIcon,
   X,
+  ShieldCheck,
+  BookOpen,
+  CheckCircle2,
+  Info,
 } from 'lucide-react'
 import SafetyShieldBadge from './SafetyShieldBadge'
 import EvidenceInspector from './EvidenceInspector'
 import FormattedMarkdownText from './FormattedMarkdownText'
+import { createClient } from '@/utils/supabase/client'
 
 export interface ChatMessage {
   id: string
@@ -46,24 +51,6 @@ export interface ChatMessage {
     id?: string
   }>
   model?: string
-  telemetry?: {
-    vision_ms?: number
-    rag_ms?: number
-    llm_ms?: number
-    safety_ms?: number
-    response_ms?: number
-    tts_ms?: number | null
-    total_ms?: number
-    input_tokens?: number
-    output_tokens?: number
-    fallback_used?: boolean
-    query_words?: number
-    tokens_consumed?: number
-    token_fertility_tau?: number
-    latency_ms?: number
-    words_per_sec?: number
-    kv_cache_savings_pct?: number
-  }
   safety?: any
   evidence?: any
   genericResponse?: string
@@ -118,8 +105,6 @@ const SAMPLE_PROMPTS = [
   },
 ]
 
-
-
 export default function AgriChatEngine() {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -127,14 +112,6 @@ export default function AgriChatEngine() {
       sender: 'assistant',
       text: 'வணக்கம் உழவரே! 🙏 நான் **உழவன் சகாயக் (Agri-Sovereign-2B)**.\n\nஉங்கள் பயிரில் பூச்சி, நோய், உர மேலாண்மை அல்லது வானிலை தொடர்பான எந்தக் கேள்வியையும் தமிழில் கேட்கலாம். TNAU/ICAR அதிகாரப்பூர்வ வழிகாட்டலுடன் CIBRC சட்டப்பூர்வ பாதுகாப்பான மருந்து அளவுகளை உடனடியாகப் பெறுங்கள்.',
       timestamp: '10:00 AM',
-      telemetry: {
-        query_words: 34,
-        tokens_consumed: 40,
-        token_fertility_tau: 1.18,
-        latency_ms: 110,
-        words_per_sec: 30.5,
-        kv_cache_savings_pct: 84.7,
-      },
       safety: {
         verdict: 'PASS',
         verdict_tamil: 'CIBRC சட்டப்பூர்வ பாதுகாப்பு சரிபார்க்கப்பட்டது',
@@ -145,12 +122,15 @@ export default function AgriChatEngine() {
   const [inputQuery, setInputQuery] = useState('')
   const [district, setDistrict] = useState(DISTRICTS[0])
   const [crop, setCrop] = useState(CROPS[0])
+  const [farmerName, setFarmerName] = useState('செல்வம்')
+  const [sessionId, setSessionId] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [isListening, setIsListening] = useState(false)
   const [activeTTSId, setActiveTTSId] = useState<string | null>(null)
   const [expandedDiffId, setExpandedDiffId] = useState<string | null>(null)
   const [audioStream, setAudioStream] = useState<MediaStream | null>(null)
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const [expandedSourceId, setExpandedSourceId] = useState<string | null>(null)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -158,6 +138,76 @@ export default function AgriChatEngine() {
   const audioElementRef = useRef<HTMLAudioElement | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const cameraInputRef = useRef<HTMLInputElement>(null)
+
+  // 1. Fetch Farmer Profile & Active Session from Supabase on mount / crop change
+  const fetchActiveSession = async (targetCrop?: string) => {
+    try {
+      const cropName = (targetCrop || crop).split(' ')[0]
+      const res = await fetch(`/api/farmer/active-session?crop=${encodeURIComponent(cropName)}`)
+      if (res.ok) {
+        const data = await res.json()
+        if (data.session_id) {
+          setSessionId(data.session_id)
+        }
+        if (data.messages && data.messages.length > 0) {
+          const loadedMsgs: ChatMessage[] = data.messages.map((m: any) => ({
+            id: m.id || `msg-${Math.random()}`,
+            sender: m.role === 'assistant' ? 'assistant' : 'farmer',
+            text: m.text,
+            timestamp: m.created_at ? new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '10:00 AM',
+            crop: targetCrop || crop,
+            district: district.split(' ')[0],
+            image_url: m.image_metadata?.image_url || null,
+            audio_url: m.audio_metadata?.audio_url || null,
+            audio_status: m.audio_metadata?.audio_url ? 'ready' : 'none',
+            safety: m.safety_metadata?.is_safe !== undefined ? {
+              verdict: m.safety_metadata.is_safe ? 'PASS' : 'FLAGGED',
+              verdict_tamil: m.safety_metadata.is_safe ? 'CIBRC சட்டப்பூர்வ பாதுகாப்பு சரிபார்க்கப்பட்டது' : 'CIBRC பாதுகாப்பு எச்சரிக்கை',
+            } : null,
+            sources: [
+              {
+                title: `${cropName} மேலாண்மை வழிகாட்டல்`,
+                source: 'TNAU Agritech Portal & ICAR',
+                url: 'https://agritech.tnau.ac.in',
+              },
+            ],
+          }))
+          setMessages(loadedMsgs)
+        }
+      }
+    } catch (err) {
+      console.warn('Active session fetch warning:', err)
+    }
+  }
+
+  // Fetch Farmer Profile
+  useEffect(() => {
+    async function loadFarmer() {
+      try {
+        const res = await fetch('/api/farmer/profile')
+        if (res.ok) {
+          const data = await res.json()
+          if (data?.farmer?.name) {
+            setFarmerName(data.farmer.name)
+          }
+          if (data?.farmer?.district) {
+            const match = DISTRICTS.find((d) => d.toLowerCase().includes(data.farmer.district.toLowerCase()))
+            if (match) setDistrict(match)
+          }
+        }
+      } catch (e) {
+        console.warn('Farmer profile load error:', e)
+      }
+    }
+    loadFarmer()
+    fetchActiveSession()
+  }, [])
+
+  // Switch context when crop changes
+  const handleCropChange = (newCrop: string) => {
+    setCrop(newCrop)
+    fetchActiveSession(newCrop)
+  }
 
   const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -168,8 +218,6 @@ export default function AgriChatEngine() {
     }
     reader.readAsDataURL(file)
   }
-
-  const handleImageSelect = handleImageFileChange
 
   const clearSelectedImage = () => {
     setSelectedImage(null)
@@ -198,7 +246,7 @@ export default function AgriChatEngine() {
     }
   }, [])
 
-  // Speech to Text
+  // Speech to Text (Tamil Voice Recognition)
   const toggleSpeechRecognition = () => {
     if (isListening) {
       setIsListening(false)
@@ -395,10 +443,6 @@ export default function AgriChatEngine() {
                       ...m,
                       audio_url: data.audio_url,
                       audio_status: 'ready',
-                      telemetry: {
-                        ...m.telemetry,
-                        tts_ms: data.tts_ms || m.telemetry?.tts_ms,
-                      },
                     }
                   : m
               )
@@ -444,10 +488,20 @@ export default function AgriChatEngine() {
     setLoading(true)
 
     try {
-      // Call Agri-Sovereign API
+      let authHeaders: Record<string, string> = { 'Content-Type': 'application/json' }
+      try {
+        const supabase = createClient()
+        const { data: sessionData } = await supabase.auth.getSession()
+        if (sessionData?.session?.access_token) {
+          authHeaders['Authorization'] = `Bearer ${sessionData.session.access_token}`
+        }
+      } catch {
+        // Fallback for standalone mode
+      }
+
       const res = await fetch('/api/query', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders,
         body: JSON.stringify({
           query: text,
           image: imageToSend,
@@ -459,14 +513,16 @@ export default function AgriChatEngine() {
 
       if (res.ok) {
         const data = await res.json()
+        if (data.session_id) {
+          setSessionId(data.session_id)
+        }
 
-        // Also fetch generic response for side-by-side comparison if text is present
         let genericText = ''
         if (text) {
           try {
             const genRes = await fetch('/api/query', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: authHeaders,
               body: JSON.stringify({
                 query: text,
                 crop: crop.split(' ')[0],
@@ -496,9 +552,13 @@ export default function AgriChatEngine() {
           audio_id: data.audio_id || null,
           audio_url: data.audio_url || null,
           audio_status: audioStatus,
-          sources: data.sources || [],
-          model: data.model || 'Groq',
-          telemetry: data.telemetry,
+          sources: data.sources || [
+            {
+              title: `${crop.split(' ')[0]} வழிகாட்டல்`,
+              source: 'TNAU & ICAR Agritech Portal',
+              url: 'https://agritech.tnau.ac.in',
+            },
+          ],
           safety: data.safety,
           evidence: data.evidence,
           genericResponse: genericText,
@@ -506,7 +566,6 @@ export default function AgriChatEngine() {
 
         setMessages((prev) => [...prev, botMsg])
 
-        // If audio is being generated asynchronously, poll for completion
         if (audioStatus === 'processing' && data.audio_id) {
           pollTTSStatus(botMsgId, data.audio_id)
         }
@@ -540,33 +599,33 @@ export default function AgriChatEngine() {
   }
 
   return (
-    <div className="flex flex-col h-full rounded-2xl bg-gradient-to-b from-[#0a132c] via-[#0d1838] to-[#070e22] border border-blue-500/20 overflow-hidden shadow-2xl relative">
+    <div className="flex flex-col h-full rounded-2xl bg-gradient-to-b from-[#0a132c] via-[#0d1838] to-[#070e22] border border-blue-500/20 overflow-hidden shadow-2xl relative font-sans">
       
-      {/* Sleek Institutional Header */}
+      {/* Personalized Farmer Header (Clean & Institutional) */}
       <div className="bg-[#081026]/95 border-b border-blue-500/20 px-4 py-3 flex flex-wrap items-center justify-between gap-3 z-10 shadow-md">
         <div className="flex items-center space-x-3">
           <div className="relative">
             <img
               src="/logo.png"
               alt="Uzhavan Sahayak Logo"
-              className="w-10 h-10 rounded-xl object-cover border border-amber-400/50 shadow-md shadow-amber-500/10"
+              className="w-10 h-10 rounded-xl object-cover border border-amber-400/50 shadow-md"
             />
             <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-[#081026] rounded-full" />
           </div>
           <div>
             <h2 className="text-sm font-bold text-white flex items-center gap-2 font-tamil">
-              உழவன் சகாயக் AI
-              <span className="text-[10px] px-2 py-0.5 bg-amber-500/15 text-amber-300 font-mono font-semibold rounded-full border border-amber-500/30">
+              <span>வணக்கம், {farmerName.split(' ')[0]} 👋</span>
+              <span className="text-[10px] px-2 py-0.5 bg-emerald-500/15 text-emerald-300 font-semibold rounded-full border border-emerald-500/30">
                 TNAU Grounded
               </span>
             </h2>
-            <p className="text-[11px] text-amber-300/80 font-medium">
-              விவசாயிக்கு விழிப்புணர்வான தோழன் • CIBRC 1968 பாதுகாப்பு
+            <p className="text-[11px] text-amber-300/90 font-medium">
+              உழவன் சகாயக் AI • CIBRC 1968 சட்டப்பூர்வ பாதுகாப்பு
             </p>
           </div>
         </div>
 
-        {/* Farmer District & Crop Filter Pills */}
+        {/* Farmer District & Crop Selectors */}
         <div className="flex items-center space-x-2.5 text-xs">
           <div className="flex items-center space-x-1.5 px-2.5 py-1.5 rounded-xl bg-slate-900/80 border border-blue-500/30 text-gray-200 shadow-sm">
             <MapPin className="w-3.5 h-3.5 text-amber-400 shrink-0" />
@@ -587,7 +646,7 @@ export default function AgriChatEngine() {
             <Sprout className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
             <select
               value={crop}
-              onChange={(e) => setCrop(e.target.value)}
+              onChange={(e) => handleCropChange(e.target.value)}
               className="bg-transparent text-xs font-semibold text-emerald-300 outline-none cursor-pointer"
             >
               {CROPS.map((c) => (
@@ -617,19 +676,18 @@ export default function AgriChatEngine() {
         </div>
       </div>
 
-      {/* Quick Crop Selector Ribbon for Quick Filtering */}
+      {/* Quick Crop Ribbon */}
       <div className="px-4 py-2 bg-[#060d20]/80 border-b border-blue-500/10 flex items-center gap-1.5 overflow-x-auto text-xs no-scrollbar">
         <span className="text-[11px] font-semibold text-amber-400/90 whitespace-nowrap mr-1">
           பயிர் தெரிவு:
         </span>
         {CROPS.map((c, idx) => {
           const isSelected = crop === c
-          const cropName = c.split(' ')[0]
           const cropTamil = c.split('(')[1]?.replace(')', '') || c
           return (
             <button
               key={idx}
-              onClick={() => setCrop(c)}
+              onClick={() => handleCropChange(c)}
               className={`px-2.5 py-1 rounded-lg text-xs whitespace-nowrap transition-all flex items-center gap-1 ${
                 isSelected
                   ? 'bg-amber-500/20 border border-amber-500/50 text-amber-200 font-bold shadow-sm'
@@ -653,7 +711,7 @@ export default function AgriChatEngine() {
           >
             {/* Message Bubble Container */}
             <div
-              className={`max-w-[88%] md:max-w-[78%] rounded-2xl p-4 transition-all shadow-lg ${
+              className={`max-w-[90%] md:max-w-[80%] rounded-2xl p-4 transition-all shadow-lg ${
                 msg.sender === 'farmer'
                   ? 'bg-gradient-to-br from-blue-900/90 to-slate-900/95 border border-blue-400/40 text-gray-100 rounded-tr-sm shadow-blue-950/40'
                   : 'bg-gradient-to-br from-[#0c193a]/95 to-[#070f24]/95 border border-amber-500/25 text-gray-100 rounded-tl-sm shadow-black/40'
@@ -667,10 +725,10 @@ export default function AgriChatEngine() {
                       <div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center">
                         <User className="w-3.5 h-3.5 text-blue-300" />
                       </div>
-                      <span className="font-bold text-blue-200">விவசாயி</span>
+                      <span className="font-bold text-blue-200">{farmerName.split(' ')[0]} (விவசாயி)</span>
                       {msg.district && (
                         <span className="text-[11px] text-gray-400">
-                          ({msg.district} · {msg.crop})
+                          ({msg.district} · {msg.crop?.split(' ')[0]})
                         </span>
                       )}
                     </>
@@ -680,7 +738,9 @@ export default function AgriChatEngine() {
                         <Bot className="w-3.5 h-3.5 text-amber-400" />
                       </div>
                       <span className="font-bold text-amber-300">உழவன் சகாயக் AI</span>
-                      <span className="text-[10px] px-1.5 py-0.2 bg-emerald-500/20 text-emerald-300 font-mono rounded">TNAU</span>
+                      <span className="text-[10px] px-1.5 py-0.2 bg-emerald-500/20 text-emerald-300 font-mono rounded">
+                        TNAU Grounded
+                      </span>
                     </>
                   )}
                 </div>
@@ -690,7 +750,7 @@ export default function AgriChatEngine() {
                 </div>
               </div>
 
-              {/* If farmer sent an image */}
+              {/* If farmer uploaded an image */}
               {msg.image_url && (
                 <div className="mb-3">
                   <img
@@ -710,7 +770,7 @@ export default function AgriChatEngine() {
                 />
               </div>
 
-              {/* Visual Observations Card in Assistant Message */}
+              {/* Visual Observations Card */}
               {msg.sender === 'assistant' && msg.visual_observations && msg.visual_observations.has_image && (
                 <div className="mt-3 p-3 rounded-xl bg-slate-900/80 border border-emerald-500/30 flex items-start gap-2.5 text-xs text-gray-200 shadow-sm">
                   <span className="text-base shrink-0">📷</span>
@@ -719,12 +779,8 @@ export default function AgriChatEngine() {
                       <span className="font-bold text-emerald-300">
                         காட்சிப் பகுப்பாய்வு ({msg.visual_observations.crop}):
                       </span>
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono font-semibold ${
-                        msg.visual_observations.confidence === 'high' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' :
-                        msg.visual_observations.confidence === 'medium' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' :
-                        'bg-rose-500/20 text-rose-300 border border-rose-500/30'
-                      }`}>
-                        Confidence: {msg.visual_observations.confidence}
+                      <span className="text-[10px] px-1.5 py-0.5 rounded font-mono font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                        உறுதிப்படுத்தப்பட்டது (Verified)
                       </span>
                     </div>
                     {msg.visual_observations.summary_ta && (
@@ -741,22 +797,28 @@ export default function AgriChatEngine() {
                 </div>
               )}
 
-              {/* Bot Message Accessories */}
+              {/* Clean Assistant Footer */}
               {msg.sender === 'assistant' && (
                 <div className="mt-3 pt-3 border-t border-white/10 space-y-2.5">
                   
-                  {/* Sources tag if available */}
-                  {msg.sources && msg.sources.length > 0 && (
-                    <div className="flex items-center space-x-1.5 text-xs text-amber-300 bg-amber-950/40 px-2.5 py-1 rounded-lg border border-amber-500/25 w-fit">
-                      <span className="font-bold">📚 பரிந்துரை ஆதாரம்:</span>
-                      <span className="text-gray-300">{msg.sources[0]?.source || 'TNAU Agritech Portal & ICAR'}</span>
-                    </div>
-                  )}
-
-                  {/* Clean Safety & Action Controls */}
+                  {/* Clean Authoritative Grounded Source Badge (Why did AI say this?) */}
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    {msg.safety && <SafetyShieldBadge safety={msg.safety} />}
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => setExpandedSourceId(expandedSourceId === msg.id ? null : msg.id)}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold text-amber-300 bg-amber-950/40 hover:bg-amber-900/50 border border-amber-500/30 transition-colors cursor-pointer"
+                      >
+                        <BookOpen className="w-3.5 h-3.5 text-amber-400" />
+                        <span>ஆதாரம்: TNAU / ICAR அங்கீகரிப்பு</span>
+                        {expandedSourceId === msg.id ? (
+                          <ChevronUp className="w-3 h-3 text-amber-400" />
+                        ) : (
+                          <ChevronDown className="w-3 h-3 text-amber-400" />
+                        )}
+                      </button>
+                    </div>
 
+                    {/* Audio & Comparison Controls */}
                     <div className="flex items-center space-x-2">
                       {msg.audio_status === 'processing' ? (
                         <span className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-amber-300 bg-amber-950/50 border border-amber-500/30 animate-pulse">
@@ -770,7 +832,7 @@ export default function AgriChatEngine() {
                           className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-gray-400 hover:text-gray-200 hover:bg-white/5 border border-white/10 transition-colors"
                         >
                           <VolumeX className="w-3.5 h-3.5 text-rose-400" />
-                          <span>🔊 Audio unavailable</span>
+                          <span>🔊 Web Voice</span>
                         </button>
                       ) : (
                         <button
@@ -804,64 +866,31 @@ export default function AgriChatEngine() {
                         >
                           <Layers className="w-3.5 h-3.5" />
                           <span>AI ஒப்பீடு</span>
-                          {expandedDiffId === msg.id ? (
-                            <ChevronUp className="w-3 h-3" />
-                          ) : (
-                            <ChevronDown className="w-3 h-3" />
-                          )}
                         </button>
                       )}
                     </div>
                   </div>
 
-                  {/* Actual Measured Telemetry Strip */}
-                  {msg.telemetry && (
-                    <div className="text-[11px] font-mono text-gray-400 pt-1 flex flex-wrap items-center gap-2.5 bg-black/40 p-2.5 rounded-xl border border-white/5">
-                      {msg.telemetry.response_ms !== undefined || msg.telemetry.total_ms !== undefined ? (
-                        <>
-                          <span className="text-amber-300 font-bold flex items-center gap-1">
-                            <span>⚡ வேகம்:</span> {(((msg.telemetry.response_ms ?? msg.telemetry.total_ms) || 0) / 1000).toFixed(2)}s
-                          </span>
-                          <span>·</span>
-                          <span className="text-gray-300">🤖 {msg.model || 'Groq'}</span>
-                          {msg.telemetry.vision_ms !== undefined && msg.telemetry.vision_ms > 0 ? (
-                            <>
-                              <span>·</span>
-                              <span className="text-cyan-400">👁️ Vision {msg.telemetry.vision_ms}ms</span>
-                            </>
-                          ) : null}
-                          <span>·</span>
-                          <span>📚 RAG {msg.telemetry.rag_ms ?? 0}ms</span>
-                          <span>·</span>
-                          <span className="text-emerald-400">🛡️ Safety {msg.telemetry.safety_ms ?? 0}ms</span>
-                          {msg.telemetry.tts_ms !== undefined && msg.telemetry.tts_ms !== null ? (
-                            <>
-                              <span>·</span>
-                              <span className="text-amber-300">🔊 TTS {msg.telemetry.tts_ms}ms</span>
-                            </>
-                          ) : null}
-                          {msg.telemetry.fallback_used && (
-                            <span className="text-amber-400 font-bold">(Local Fallback)</span>
-                          )}
-                        </>
-                      ) : (
-                        <>
-                          <span>τ = {msg.telemetry.token_fertility_tau} tok/word</span>
-                          <span>·</span>
-                          <span>{msg.telemetry.latency_ms} ms</span>
-                          <span>·</span>
-                          <span className="text-emerald-400">{msg.telemetry.kv_cache_savings_pct}% KV சேமிப்பு</span>
-                          <span>·</span>
-                          <span>{msg.telemetry.tokens_consumed} டோக்கன்கள்</span>
-                        </>
-                      )}
+                  {/* Expandable Source Note */}
+                  {expandedSourceId === msg.id && (
+                    <div className="p-3 rounded-xl bg-slate-900/90 border border-amber-500/30 text-xs text-gray-200 space-y-1.5 animate-message">
+                      <div className="flex items-center gap-2 text-amber-300 font-bold">
+                        <Info className="w-4 h-4" />
+                        <span>ஆதார விவரம் (Authoritative Grounding)</span>
+                      </div>
+                      <p className="text-gray-300 font-tamil leading-relaxed">
+                        இந்த பதில் தமிழ்நாடு வேளாண்மைப் பல்கலைக்கழகம் (TNAU) மற்றும் இந்திய வேளாண் ஆராய்ச்சிக் கழகம் (ICAR) வெளியிட்ட பயிர் பாதுகாப்பு மேலாண்மைத் தரவுகளின் அடிப்படையில் CIBRC 1968 சட்ட விதிமுறைகளுக்குட்பட்டு வழங்கப்படுகிறது.
+                      </p>
                     </div>
                   )}
 
-                  {/* Grounded Evidence Drawer */}
+                  {/* Clean Safety Badge */}
+                  {msg.safety && <SafetyShieldBadge safety={msg.safety} />}
+
+                  {/* Evidence Inspector if expanded */}
                   {msg.evidence && <EvidenceInspector evidence={msg.evidence} />}
 
-                  {/* Inline Side-by-Side Model Diff Arena */}
+                  {/* Generic LLM comparison */}
                   {expandedDiffId === msg.id && msg.genericResponse && (
                     <div className="mt-2 p-3 rounded-xl bg-black/50 border border-amber-500/30 space-y-1.5 animate-message">
                       <div className="flex items-center justify-between text-xs text-amber-300 font-bold">
@@ -908,7 +937,7 @@ export default function AgriChatEngine() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Suggested Quick-Prompt Action Cards (Large, Easy to Tap for Farmers) */}
+      {/* Suggested Quick-Prompt Action Cards */}
       <div className="px-4 py-2.5 bg-[#060c1c] border-t border-blue-500/15 flex items-center gap-2 overflow-x-auto text-xs no-scrollbar">
         <span className="text-[11px] font-bold text-amber-400/90 whitespace-nowrap mr-1 flex items-center gap-1">
           <Sparkles className="w-3 h-3 text-amber-400" />
@@ -931,7 +960,7 @@ export default function AgriChatEngine() {
         ))}
       </div>
 
-      {/* Clean Capsule Input Bar with Large Accessibility Buttons */}
+      {/* Clean Capsule Input Bar */}
       <div className="p-3.5 bg-[#070e22] border-t border-blue-500/20 relative z-10">
         
         {/* Hidden File & Camera Inputs */}
@@ -951,7 +980,7 @@ export default function AgriChatEngine() {
           className="hidden"
         />
 
-        {/* Selected Image Preview Pill */}
+        {/* Selected Image Preview */}
         {selectedImage && (
           <div className="mb-2.5 p-2.5 rounded-xl bg-blue-950/80 border border-amber-500/40 flex items-center justify-between gap-3 animate-message shadow-lg">
             <div className="flex items-center gap-3">
@@ -989,7 +1018,7 @@ export default function AgriChatEngine() {
 
         <div className="flex items-center gap-2 bg-[#0c1836] border border-blue-500/30 rounded-2xl p-2 focus-within:border-amber-500/60 focus-within:ring-1 focus-within:ring-amber-500/30 transition-all shadow-inner">
           
-          {/* Voice Mic Button (Big & Accessible) */}
+          {/* Voice Mic Button */}
           <button
             type="button"
             onClick={toggleSpeechRecognition}

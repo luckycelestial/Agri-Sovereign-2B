@@ -56,14 +56,9 @@ class TamilSpeechNormalizer:
     def create_spoken_ta(cls, text: str) -> str:
         """
         Creates a dedicated concise spoken Tamil response from answer_ta.
-        Strips markdown, emojis, tables, and unneeded transliterations.
-        Extracts:
-        1. Main symptom / finding
-        2. Immediate safe action
-        3. Important treatment guidance if verified
-        4. PHI / safety warning when relevant
-        5. One short uncertainty / advisory statement if needed
-        Screen text remains detailed; spoken_ta is concise and clear (approx 350-550 chars).
+        Strips markdown, emojis, tables, links, and formatting.
+        Preserves complete agronomic findings, management advice, and safety instructions
+        with natural Tamil sentence boundaries.
         """
         if not text:
             return ""
@@ -78,16 +73,17 @@ class TamilSpeechNormalizer:
 
         # 2. Strip emojis and non-speech visual indicators
         s = re.sub(r'[\U00010000-\U0010ffff]', '', s)
-        s = re.sub(r'[\u2600-\u27bf\u2300-\u23ff\u2b50\u200d\ufe0f⛔🛡️✅⚠️💡📌🌾📍⏳🌽📋🧑‍🌾🌱🌿🧪]', '', s)
+        s = re.sub(r'[\u2600-\u27bf\u2300-\u23ff\u2b50\u200d\ufe0f⛔🛡️✅⚠️💡📌🌾📍⏳🌽📋🧑‍🌾🌱🌿🧪🔍🔎]', '', s)
 
-        # 3. Clean UI headers and symbols
+        # 3. Clean UI headers, symbols, and English parenthetical notes
         s = re.sub(r'&', ' மற்றும் ', s)
         s = re.sub(r'உழவன் சகாயக் வேளாண் AI.*?\n', '', s)
         s = re.sub(r'மண்டலம்:[^\n]+\n', '', s)
-        s = re.sub(r'\([A-Za-z\s\-\.\,\/0-9%]+\)', '', s)
+        s = re.sub(r'ஆதாரம்:[^\n]+', '', s)
+        s = re.sub(r'https?://\S+', '', s)
 
         # 4. Check if this is an explicit Safety Block / Prohibited Chemical response
-        is_safety_block = ("⛔" in text or "முழுமையாக தடைசெய்யப்பட்டுள்ளது" in s or 
+        is_safety_block = ("முழுமையாக தடைசெய்யப்பட்டுள்ளது" in s or 
                            "தடைசெய்யப்பட்ட பூச்சிக்கொல்லி" in s or 
                            ("CIBRC சட்டப்பூர்வ பாதுகாப்பு எச்சரிக்கை" in s and "தடைசெய்யப்பட்ட" in s))
         
@@ -116,63 +112,24 @@ class TamilSpeechNormalizer:
             combined = ". ".join(alert_parts)
             return cls.normalize(combined)
 
-        # 5. Extract structured voice elements from standard advisory
-        # 1. Main symptom / finding
-        # 2. Immediate safe action
-        # 3. Important treatment guidance if verified
-        # 4. PHI / safety warning when relevant
-        # 5. Short advisory note
-        symptom_finding = []
-        immediate_action = []
-        treatment_guidance = []
-        phi_safety = []
-
-        lines = [l.strip() for l in s.split('\n') if l.strip()]
-
-        for l in lines:
-            cl = re.sub(r'^[.\s:]+', '', l).strip()
+        # 5. Extract structured voice elements from standard advisory (Text and Multimodal Vision responses)
+        clean_lines = []
+        for l in s.split('\n'):
+            cl = re.sub(r'^[.\s:\-–—]+', '', l).strip()
             if not cl or len(cl) < 4:
                 continue
-
-            # Skip boilerplate
-            if any(b in cl for b in ["வேளாண் AI", "மண்டலம்"]):
+            # Skip boilerplate headers
+            if any(b in cl for b in ["வேளாண் AI", "மண்டலம்:"]):
                 continue
+            clean_lines.append(cl)
 
-            # 4. PHI / Safety warning
-            if any(k in cl for k in ["காத்திருப்பு காலம்", "PHI", "அறுவடை", "பாதுகாப்பு கவசம்", "நாட்கள்"]):
-                phi_safety.append(cl)
-            # 2. Immediate action / Organic / Cultural control
-            elif any(k in cl for k in ["வேப்பங்கொட்டை", "வேப்ப எண்ணெய்", "பொறி", "கைமுறை", "இயற்கை", "ஆரம்ப நிலையில்"]):
-                immediate_action.append(cl)
-            # 3. Treatment guidance / chemical dosage
-            elif any(k in cl for k in ["Spinetoram", "Chlorantraniliprole", "Emamectin", "மருந்து", "தெளிக்கவும்", "மில்லி", "கிராம்", "SC", "SG", "EC", "WP"]):
-                treatment_guidance.append(cl)
-            # 1. Crop / Symptoms / Finding
-            elif any(k in cl for k in ["பயிர்", "தாக்குதல்", "பிரச்சனை", "அறிகுறிகள்", "கண்டறிதல்", "துளைகள்", "புழுவின் சேதம்", "மக்காச்சோளம்"]):
-                symptom_finding.append(cl)
+        if not clean_lines:
+            return ""
 
-        # Build concise voice script
-        spoken_components = []
-        if symptom_finding:
-            spoken_components.append(". ".join(symptom_finding))
-        if immediate_action:
-            spoken_components.append(". ".join(immediate_action))
-        if treatment_guidance:
-            spoken_components.append(". ".join(treatment_guidance))
-        if phi_safety:
-            spoken_components.append(". ".join(phi_safety))
+        combined = ". ".join(clean_lines)
+        if "வேளாண்மை அலுவலரை" not in combined:
+            combined += ". மேலதிக விவரங்களுக்கு உங்கள் பகுதி வேளாண்மை அலுவலரை அணுகவும்."
 
-        # Fallback if text is free-form
-        if not spoken_components:
-            for l in lines[:5]:
-                cl = re.sub(r'^[.\s:]+', '', l).strip()
-                if cl and len(cl) > 10 and 'வணக்கம் விவசாயி' not in cl:
-                    spoken_components.append(cl)
-
-        # Add one short uncertainty / advisory statement if needed
-        spoken_components.append("மேலதிக விவரங்களுக்கு உங்கள் பகுதி வேளாண்மை அலுவலரை அணுகவும்.")
-
-        combined = ". ".join(spoken_components)
         return cls.normalize(combined)
 
     @classmethod

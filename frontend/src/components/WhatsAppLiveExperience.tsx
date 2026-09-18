@@ -12,6 +12,11 @@ import {
   Sparkles,
   RefreshCw,
   ShieldCheck,
+  Phone,
+  KeyRound,
+  CheckCircle2,
+  AlertCircle,
+  Link as LinkIcon,
 } from 'lucide-react'
 import FormattedMarkdownText from './FormattedMarkdownText'
 
@@ -40,8 +45,8 @@ interface FarmerContact {
 const INITIAL_CONTACTS: FarmerContact[] = [
   {
     id: 'c1',
-    name: 'முருகன் (Murugan)',
-    phone: '+91 98421 88888',
+    name: 'செல்வம் (Selvam)',
+    phone: '+91 98435 60889',
     district: 'கோவை (Coimbatore)',
     crop: 'மக்காச்சோளம் (Maize)',
     lastMessage: 'மக்காச்சோளப் படைப்புழு மேலாண்மை ஆலோசனை',
@@ -51,8 +56,8 @@ const INITIAL_CONTACTS: FarmerContact[] = [
   },
   {
     id: 'c2',
-    name: 'செல்வம் (Selvam)',
-    phone: '+91 94432 11111',
+    name: 'முருகன் (Murugan)',
+    phone: '+91 98421 88888',
     district: 'தஞ்சாவூர் (Thanjavur)',
     crop: 'நெல் (Paddy)',
     lastMessage: 'நெற்பயிர் குலைநோய் தடுப்பு மருந்து ஆலோசனை',
@@ -88,9 +93,9 @@ const INITIAL_THREADS: Record<string, WhatsAppMessage[]> = {
   c1: [
     {
       id: 'm1_1',
-      from: '+91 98421 88888',
-      senderName: 'முருகன் (Farmer)',
-      text: 'வணக்கம் ஐயா, எனது மக்காச்சோளப் பயிரில் நடுக்குருத்தில் புழுக்கள் இலைகளை அரித்து தின்கிறது. என்ன மருந்து தெளிக்க வேண்டும்?',
+      from: '+91 98435 60889',
+      senderName: 'செல்வம் (Farmer)',
+      text: 'வணக்கம், எனது மக்காச்சோளப் பயிரில் நடுக்குருத்தில் புழுக்கள் இலைகளை அரித்து தின்கிறது. என்ன மருந்து தெளிக்க வேண்டும்?',
       time: '10:40 AM',
       isMe: true,
       status: 'read',
@@ -108,8 +113,8 @@ const INITIAL_THREADS: Record<string, WhatsAppMessage[]> = {
   c2: [
     {
       id: 'm2_1',
-      from: '+91 94432 11111',
-      senderName: 'செல்வம் (Farmer)',
+      from: '+91 98421 88888',
+      senderName: 'முருகன் (Farmer)',
       text: 'நெற்பயிரில் குலைநோய் வராமல் தடுக்க என்ன மருந்து தெளிப்பது?',
       time: '09:12 AM',
       isMe: true,
@@ -119,48 +124,8 @@ const INITIAL_THREADS: Record<string, WhatsAppMessage[]> = {
       id: 'm2_2',
       from: 'Agri-Sovereign-Bot',
       senderName: 'உழவன் சகாயக் AI',
-      text: '🌾 *உழவன் சகாயக் (TNAU & CIBRC அங்கீகரிக்கப்பட்ட வேளாண் ஆலோசனை)*:\n\n📍 *பயிர் & பாதிப்பு*: Paddy (நெல் - குறுவை/சம்பா) - Blast Disease (குலைநோய் / இலைக்கருகல்)\n\n🔬 *பரிந்துரைக்கப்படும் மேலாண்மை*:\n• *இயற்கை முறை*: சூடோமோனாஸ் புளோரசன்ஸ் (Pseudomonas fluorescens) 10 கிராம்/லிட்டர் அல்லது 1 கிலோ/ஏக்கர் தெளிக்கவும்.\n• *இரசாயன முறை*: Tricyclazole 75% WP 0.6 கிராம்/லிட்டர் (120 கிராம்/ஏக்கர்) அல்லது Azoxystrobin 25% SC 1.0 மில்லி/லிட்டர் தண்ணீரில் கலந்து கைத்தெளிப்பான் கொண்டு தெளிக்கவும்.\n\n🛡️ *CIBRC பாதுகாப்பு*: காத்திருப்பு காலம்: 21 நாட்கள். தழைச்சத்து (யூரியா) உரங்களை அளவுக்கு அதிகமாக இடுவதை தவிர்க்கவும்.',
-      time: '09:15 AM',
-      isMe: false,
-      status: 'read',
-    },
-  ],
-  c3: [
-    {
-      id: 'm3_1',
-      from: '+91 97890 22222',
-      senderName: 'மாரியப்பன் (Farmer)',
-      text: 'தக்காளியில் இலை சுருட்டல் நோய் உள்ளது, என்ன செய்வது?',
-      time: 'நேற்று 04:30 PM',
-      isMe: true,
-      status: 'read',
-    },
-    {
-      id: 'm3_2',
-      from: 'Agri-Sovereign-Bot',
-      senderName: 'உழவன் சகாயக் AI',
-      text: '🌾 *உழவன் சகாயக் (TNAU & CIBRC அங்கீகரிக்கப்பட்ட வேளாண் ஆலோசனை)*:\n\n📍 *பயிர் & பாதிப்பு*: Tomato (தக்காளி) - Leaf Curl Virus & Whitefly (இலை சுருட்டல் நச்சுயிரி & வெள்ளை ஈ)\n\n🔬 *பரிந்துரைக்கப்படும் மேலாண்மை*:\n• *இயற்கை முறை*: மஞ்சள் நிற ஒட்டும் பொறிகள் ஏக்கருக்கு 12 வைக்கவும். வேப்பெண்ணெய் 3% கரைசல் தெளிக்கவும்.\n• *இரசாயன முறை*: Diafenthiuron 50% WP 1.0 கிராம்/லிட்டர் அல்லது Acetamiprid 20% SP 0.3 கிராம்/லிட்டர் வெள்ளை ஈயை கட்டுப்படுத்த தெளிக்கவும்.\n\n🛡️ *CIBRC பாதுகாப்பு*: காத்திருப்பு காலம் (PHI): 5 நாட்கள். பூக்கள் மற்றும் காய்களில் மருந்து எச்சம் படியாமல் கவனமாக தெளிக்கவும்.',
-      time: 'நேற்று 04:31 PM',
-      isMe: false,
-      status: 'read',
-    },
-  ],
-  c4: [
-    {
-      id: 'm4_1',
-      from: '+91 94420 33333',
-      senderName: 'ராமசாமி (Farmer)',
-      text: 'தென்னையில் சுருள் வெள்ளை ஈ கட்டுப்படுத்த இயற்கை வழி என்ன?',
-      time: 'நேற்று 02:15 PM',
-      isMe: true,
-      status: 'read',
-    },
-    {
-      id: 'm4_2',
-      from: 'Agri-Sovereign-Bot',
-      senderName: 'உழவன் சகாயக் AI',
-      text: '🌾 *உழவன் சகாயக் (TNAU & CIBRC அங்கீகரிக்கப்பட்ட வேளாண் ஆலோசனை)*:\n\n📍 *பயிர் & பாதிப்பு*: Coconut (தென்னை) - Rugose Spiraling Whitefly (சுருள் வெள்ளை ஈ)\n\n🔬 *பரிந்துரைக்கப்படும் மேலாண்மை*:\n• *இயற்கை முறை*: என்கார்சியா (Encarsia guadeloupae) ஒட்டுண்ணிகளை விடுவிக்க வேண்டும். மஞ்சள் நிற ஒட்டும் பொறிகள் ஏக்கருக்கு 8 வைக்கவும். கிரைசோபெர்லா இரைவிழுங்கிகளை விடவும்.\n• *இரசாயன முறை*: வேப்பெண்ணெய் 30 மில்லி/லிட்டர் அல்லது அசாடிராக்டின் 1% 2 மில்லி/லிட்டர் மற்றும் சோப்பு கரைசல் 5 மில்லி சேர்த்து மட்டைகளின் அடிப்பகுதியில் விசைத்தெளிப்பான் கொண்டு தெளிக்கவும்.\n\n🛡️ *CIBRC பாதுகாப்பு*: கடுமையான பூச்சிக்கொல்லிகளை தெளிக்கக் கூடாது, ஏனெனில் அவை இயற்கை ஒட்டுண்ணிகளை அழித்துவிடும்.',
-      time: 'நேற்று 02:16 PM',
+      text: '🌾 *உழவன் சகாயக் (TNAU வழிகாட்டி)*:\n\n📍 *பயிர்*: Paddy (நெல்) - Blast Disease (குலைநோய்)\n\n🔬 *பரிந்துரை*: Tricyclazole 75% WP @ 0.6 கிராம் / லிட்டர் நீர் அல்லது Azoxystrobin 18.2% + Difenoconazole 11.4% SC @ 1 மி.லி / லிட்டர்.\n\n🛡️ *பாதுகாப்பு*: PHI 30 நாட்கள்.',
+      time: '09:13 AM',
       isMe: false,
       status: 'read',
     },
@@ -170,20 +135,20 @@ const INITIAL_THREADS: Record<string, WhatsAppMessage[]> = {
 const PRESET_SIMULATION_SCENARIOS = [
   {
     contactId: 'c1',
-    label: '🌽 சோளம் படைப்புழு',
+    label: '🌽 மக்காச்சோளம் படைப்புழு',
     crop: 'Maize',
     district: 'Coimbatore',
-    farmerName: 'முருகன்',
-    phone: '+91 98421 88888',
-    message: 'மக்காச்சோளத்தில் படைப்புழு தாக்குதல் உள்ளது, என்ன மருந்து தெளிக்க வேண்டும்?',
+    farmerName: 'செல்வம்',
+    phone: '+91 98435 60889',
+    message: 'மக்காச்சோள நடுக்குருத்தில் புழு தாக்குதல் உள்ளது, கட்டுப்படுத்த என்ன செய்ய வேண்டும்?',
   },
   {
     contactId: 'c2',
     label: '🌾 நெல் குலைநோய்',
     crop: 'Paddy',
     district: 'Thanjavur',
-    farmerName: 'செல்வம்',
-    phone: '+91 94432 11111',
+    farmerName: 'முருகன்',
+    phone: '+91 98421 88888',
     message: 'நெற்பயிரில் குலைநோய் வராமல் தடுக்க என்ன மருந்து தெளிப்பது?',
   },
   {
@@ -193,7 +158,7 @@ const PRESET_SIMULATION_SCENARIOS = [
     district: 'Salem',
     farmerName: 'மாரியப்பன்',
     phone: '+91 97890 22222',
-    message: 'தக்காளியில் இலை சுருட்டல் நோய் உள்ளது, என்ன செய்வது?',
+    message: 'தக்காளி செடியில் இலைகள் சுருண்டு மஞ்சளாகிறது, என்ன தீர்வு?',
   },
   {
     contactId: 'c4',
@@ -212,12 +177,18 @@ export default function WhatsAppLiveExperience() {
   const [inputMsg, setInputMsg] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const [simulating, setSimulating] = useState(false)
-  const [qrModalOpen, setQrModalOpen] = useState(false)
+  
+  // Connection Modal & Phone Pairing States
+  const [connectModalOpen, setConnectModalOpen] = useState(false)
+  const [pairingMethod, setPairingMethod] = useState<'phone' | 'qr'>('phone')
+  const [phoneInput, setPhoneInput] = useState('919843560889')
+  const [pairingCode, setPairingCode] = useState<string | null>(null)
+  const [pairingLoading, setPairingLoading] = useState(false)
   const [qrCodeData, setQrCodeData] = useState<string | null>(null)
   const [daemonConnected, setDaemonConnected] = useState(false)
+  const [connectedPhone, setConnectedPhone] = useState<string | null>('919843560889')
 
   const chatEndRef = useRef<HTMLDivElement>(null)
-
   const activeMessages = threads[activeContact.id] || []
 
   useEffect(() => {
@@ -231,6 +202,7 @@ export default function WhatsAppLiveExperience() {
       if (res.ok) {
         const json = await res.json()
         setDaemonConnected(json.connected)
+        if (json.phone) setConnectedPhone(json.phone)
         if (json.qr) setQrCodeData(json.qr)
       }
     } catch (e) {
@@ -240,20 +212,42 @@ export default function WhatsAppLiveExperience() {
 
   useEffect(() => {
     checkDaemon()
-    const intv = setInterval(checkDaemon, 4000)
+    const intv = setInterval(checkDaemon, 5000)
     return () => clearInterval(intv)
   }, [])
 
+  // Handle Phone Number Pairing Code Generation via PairPhone()
+  const handleGeneratePairingCode = async () => {
+    setPairingLoading(true)
+    setPairingCode(null)
+    try {
+      const cleanPhone = phoneInput.replace(/[^0-9]/g, '')
+      const res = await fetch('/api/whatsapp/pair-phone', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: cleanPhone }),
+      })
+      const data = await res.json()
+      if (data.success && data.code) {
+        setPairingCode(data.code)
+      } else {
+        alert('Pairing request: ' + (data.error || 'Failed to generate code'))
+      }
+    } catch (err: any) {
+      alert('Pairing error: ' + err.message)
+    } finally {
+      setPairingLoading(false)
+    }
+  }
+
   // Trigger automated inbound farmer message
   const triggerInboundSimulation = async (scenario: typeof PRESET_SIMULATION_SCENARIOS[0]) => {
-    // Switch to target contact
     const targetContact = INITIAL_CONTACTS.find((c) => c.id === scenario.contactId) || activeContact
     setActiveContact(targetContact)
 
     setSimulating(true)
     const timeNow = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 
-    // Add farmer inbound message to contact thread
     const userMsg: WhatsAppMessage = {
       id: `sim-user-${Date.now()}`,
       from: scenario.phone,
@@ -384,10 +378,10 @@ export default function WhatsAppLiveExperience() {
   }
 
   return (
-    <div className="flex flex-col lg:flex-row h-full rounded-2xl border border-white/10 overflow-hidden shadow-2xl bg-[#0c1317]">
+    <div className="flex flex-col lg:flex-row h-full rounded-2xl border border-white/10 overflow-hidden shadow-2xl bg-[#0c1317] font-sans">
       
-      {/* 📱 Left Column: Farmer Chats & Neonize QR Panel */}
-      <div className="w-full lg:w-72 bg-[#111b21] border-r border-[#202c33] flex flex-col">
+      {/* 📱 Left Column: Farmer Chats & WhatsApp Hub */}
+      <div className="w-full lg:w-80 bg-[#111b21] border-r border-[#202c33] flex flex-col">
         
         {/* Left Header */}
         <div className="p-3 bg-[#202c33] flex items-center justify-between border-b border-[#222d34]">
@@ -396,25 +390,28 @@ export default function WhatsAppLiveExperience() {
               🌾
             </div>
             <div>
-              <h3 className="text-xs font-semibold text-gray-100">WhatsApp Hub</h3>
-              <p className="text-[10px] text-emerald-400 font-mono">Neonize Daemon (5001)</p>
+              <h3 className="text-xs font-semibold text-gray-100 font-tamil">வாட்ஸ்அப் பாட்</h3>
+              <p className="text-[10px] text-emerald-400 font-mono">
+                {daemonConnected ? '● இணைக்கப்பட்டது' : '○ தயாராக உள்ளது'}
+              </p>
             </div>
           </div>
 
           <button
-            onClick={() => setQrModalOpen(true)}
-            title="Scan QR Code with Phone WhatsApp"
-            className="p-1.5 rounded-lg bg-[#111b21] hover:bg-[#2a3942] text-emerald-400 border border-emerald-500/20 transition-all flex items-center gap-1 text-[11px]"
+            onClick={() => setConnectModalOpen(true)}
+            title="மொபைல் WhatsApp-ஐ இணைக்க (Link Mobile WhatsApp)"
+            className="px-2.5 py-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 transition-all flex items-center gap-1.5 text-xs font-semibold"
           >
-            <QrCode className="w-3.5 h-3.5" />
-            <span>QR Scan</span>
+            <Smartphone className="w-3.5 h-3.5" />
+            <span>இணை (Pair)</span>
           </button>
         </div>
 
-        {/* Quick Inbound Preset Simulator Section (Clean, subtle links) */}
+        {/* Quick Inbound Preset Simulator Section */}
         <div className="p-2.5 bg-[#111b21] border-b border-[#202c33] space-y-1.5">
-          <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
-            உடனடி வினா சிமுலேஷன்
+          <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider flex items-center justify-between">
+            <span>உடனடி வினா சிமுலேஷன்</span>
+            <span className="text-emerald-400 font-mono text-[9px]">JID/LID Guard</span>
           </div>
 
           <div className="grid grid-cols-2 gap-1">
@@ -425,15 +422,15 @@ export default function WhatsAppLiveExperience() {
                 onClick={() => triggerInboundSimulation(scenario)}
                 className={`text-left p-1.5 rounded-md border text-xs transition-colors ${
                   activeContact.id === scenario.contactId
-                    ? 'bg-emerald-950/70 border-emerald-500/40 text-emerald-200'
+                    ? 'bg-emerald-950/70 border-emerald-500/40 text-emerald-200 font-bold'
                     : 'bg-[#202c33] hover:bg-[#2a3942] border-[#2a3942] text-gray-300'
                 }`}
               >
-                <span className="font-semibold text-[11px] block truncate">
+                <span className="font-semibold text-[11px] block truncate font-tamil">
                   {scenario.label}
                 </span>
                 <span className="text-[10px] text-gray-400 block truncate">
-                  {scenario.district}
+                  {scenario.farmerName} ({scenario.district})
                 </span>
               </button>
             ))}
@@ -443,30 +440,41 @@ export default function WhatsAppLiveExperience() {
         {/* Contacts List */}
         <div className="flex-1 overflow-y-auto divide-y divide-[#202c33]/40">
           <div className="px-3 py-1.5 text-[10px] font-bold text-gray-500 uppercase tracking-wider bg-[#111b21]">
-            உரையாடல்கள்
+            அங்கீகரிக்கப்பட்ட உழவர்கள் (Authorized)
           </div>
           {INITIAL_CONTACTS.map((contact) => (
             <div
               key={contact.id}
               onClick={() => setActiveContact(contact)}
-              className={`p-2.5 flex items-center space-x-2.5 cursor-pointer transition-colors ${
-                activeContact.id === contact.id ? 'bg-[#2a3942]' : 'hover:bg-[#202c33]/60'
+              className={`flex items-center space-x-3 p-3 cursor-pointer transition-colors ${
+                activeContact.id === contact.id
+                  ? 'bg-[#2a3942]'
+                  : 'hover:bg-[#202c33] bg-[#111b21]'
               }`}
             >
               <div
-                className={`w-9 h-9 rounded-full ${contact.avatarColor} flex items-center justify-center font-bold text-white text-xs shrink-0 shadow`}
+                className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white text-xs ${contact.avatarColor} shrink-0`}
               >
-                {contact.name.charAt(0)}
+                {contact.name.slice(0, 1)}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
-                  <h4 className="text-xs font-semibold text-gray-100 truncate">{contact.name}</h4>
-                  <span className="text-[10px] text-gray-400">{contact.lastTime}</span>
+                  <h4 className="font-semibold text-xs text-gray-100 truncate font-tamil">
+                    {contact.name}
+                  </h4>
+                  <span className="text-[10px] text-gray-400 shrink-0">
+                    {contact.lastTime}
+                  </span>
                 </div>
                 <p className="text-[11px] text-gray-400 truncate">{contact.lastMessage}</p>
-                <span className="text-[10px] text-emerald-400 font-mono">
-                  {contact.district}
-                </span>
+                <div className="flex items-center space-x-2 mt-0.5">
+                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-950/60 text-emerald-400 border border-emerald-500/30">
+                    {contact.crop}
+                  </span>
+                  <span className="text-[9px] text-gray-500 font-mono">
+                    {contact.phone}
+                  </span>
+                </div>
               </div>
             </div>
           ))}
@@ -474,79 +482,82 @@ export default function WhatsAppLiveExperience() {
 
       </div>
 
-      {/* 💬 Right Column: Authentic WhatsApp Chat Interface */}
+      {/* 💬 Right Column: Active WhatsApp Chat Pane */}
       <div className="flex-1 flex flex-col bg-[#0b141a] relative">
         
-        {/* WhatsApp Top Header Bar */}
-        <div className="p-2.5 bg-[#202c33] flex items-center justify-between border-b border-[#222d34] z-10">
-          <div className="flex items-center space-x-2.5">
-            <div className={`w-9 h-9 rounded-full ${activeContact.avatarColor} flex items-center justify-center font-bold text-white text-xs`}>
-              {activeContact.name.charAt(0)}
+        {/* Chat Window Top Bar */}
+        <div className="p-3 bg-[#202c33] flex items-center justify-between border-b border-[#222d34]">
+          <div className="flex items-center space-x-3">
+            <div
+              className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-white text-xs ${activeContact.avatarColor}`}
+            >
+              {activeContact.name.slice(0, 1)}
             </div>
             <div>
-              <h3 className="text-xs font-semibold text-gray-100 flex items-center gap-1.5">
-                {activeContact.name}
-                <span className="text-[10px] text-gray-400 font-mono font-normal">
-                  ({activeContact.phone})
+              <div className="flex items-center space-x-2">
+                <h3 className="font-semibold text-sm text-gray-100 font-tamil">
+                  {activeContact.name}
+                </h3>
+                <span className="px-1.5 py-0.5 rounded text-[9px] bg-emerald-500/20 text-emerald-400 font-mono border border-emerald-500/30">
+                  {activeContact.phone}
                 </span>
-              </h3>
-              <p className="text-[11px] text-emerald-400 flex items-center gap-1">
-                {isTyping ? (
-                  <span className="italic font-mono animate-pulse">
-                    உழவன் சகாயக் தட்டச்சு செய்கிறது...
-                  </span>
-                ) : (
-                  <span>ஆன்லைன் • TNAU AI Advisory Bot</span>
-                )}
+              </div>
+              <p className="text-[11px] text-gray-400 flex items-center gap-1.5">
+                <span>{activeContact.district}</span>
+                <span>•</span>
+                <span className="text-emerald-400 font-semibold">{activeContact.crop}</span>
               </p>
             </div>
           </div>
+
+          <div className="flex items-center space-x-2 text-xs">
+            <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/30 text-emerald-300 font-mono text-[10px]">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+              <span>CIBRC Verified</span>
+            </span>
+          </div>
         </div>
 
-        {/* WhatsApp Chat Canvas with Classic Pattern */}
-        <div className="flex-1 overflow-y-auto p-3 md:p-5 space-y-3 wa-wallpaper-dark">
+        {/* WhatsApp Chat Messages Stream */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#0b141a] bg-opacity-95">
           
-          {/* Security Notice */}
-          <div className="flex justify-center my-1">
-            <div className="px-3 py-1 rounded bg-[#182229] text-[11px] text-[#8696a0] flex items-center gap-1.5 text-center max-w-md shadow">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-              <span>
-                CIBRC பூச்சிக்கொல்லி சட்டம் 1968 மற்றும் TNAU வழிகாட்டல் அடிப்படையில் தானியங்கி ஆலோசனை.
-              </span>
+          {/* Institutional Trust Notice */}
+          <div className="flex justify-center mb-3">
+            <div className="px-3 py-1.5 rounded-lg bg-[#182229] border border-white/5 text-[11px] text-gray-400 text-center max-w-md shadow-sm">
+              🔒 உழவன் சகாயக் WhatsApp தானியங்கி ஆலோசனை மையம் • TNAU & ICAR தரவுகள் அடிப்படையில் வழங்கப்படுகிறது.
             </div>
           </div>
 
-          {activeMessages.map((m) => (
+          {activeMessages.map((msg) => (
             <div
-              key={m.id}
-              className={`flex ${m.isMe ? 'justify-end' : 'justify-start'} animate-message`}
+              key={msg.id}
+              className={`flex ${msg.isMe ? 'justify-end' : 'justify-start'} animate-message`}
             >
               <div
-                className={`max-w-[85%] md:max-w-[72%] p-3 rounded-lg shadow text-sm ${
-                  m.isMe ? 'wa-outgoing-bubble' : 'wa-incoming-bubble'
+                className={`max-w-[85%] md:max-w-[75%] rounded-lg p-3 shadow-md ${
+                  msg.isMe
+                    ? 'wa-outgoing-bubble rounded-tr-none text-gray-100'
+                    : 'wa-incoming-bubble rounded-tl-none text-gray-100'
                 }`}
               >
-                {/* Sender Name in Group/Bot format */}
-                <div
-                  className={`text-[11px] font-semibold mb-1 ${
-                    m.isMe ? 'text-emerald-200' : 'text-emerald-400'
-                  }`}
-                >
-                  {m.senderName}
-                </div>
+                {!msg.isMe && (
+                  <div className="text-[11px] font-bold text-[#53bdeb] mb-1 flex items-center space-x-1">
+                    <Sparkles className="w-3 h-3" />
+                    <span>உழவன் சகாயக் AI (TNAU Assistant)</span>
+                  </div>
+                )}
 
-                {/* Message Body */}
-                <div className="text-xs md:text-[13.5px] leading-relaxed tamil-text">
+                <div className="text-xs md:text-sm leading-relaxed tamil-text">
                   <FormattedMarkdownText
-                    text={m.text}
-                    boldClassName={m.isMe ? 'font-bold text-emerald-100' : 'font-bold text-[#25d366]'}
-                    italicClassName={m.isMe ? 'font-medium text-emerald-200' : 'font-medium text-amber-300'}
+                    text={msg.text}
+                    boldClassName="font-bold text-amber-300"
+                    italicClassName="italic text-emerald-300"
                   />
                 </div>
 
-                <div className="flex items-center justify-end space-x-1 mt-1 text-[10px] text-gray-400 font-mono">
-                  <span suppressHydrationWarning>{m.time}</span>
-                  {m.isMe && (
+                <div className="flex items-center justify-end space-x-1 mt-1 text-[10px] text-gray-400">
+                  <span suppressHydrationWarning>{msg.time}</span>
+                  {msg.isMe && (
                     <CheckCheck className="w-3 h-3 text-[#53bdeb]" />
                   )}
                 </div>
@@ -601,11 +612,11 @@ export default function WhatsAppLiveExperience() {
             className="flex-1 bg-[#2a3942] border-none outline-none text-gray-100 placeholder-gray-400 text-xs md:text-sm px-3 py-2 rounded-lg tamil-text focus:ring-1 focus:ring-emerald-500"
           />
 
-          {/* WhatsApp Send / Mic Button */}
+          {/* WhatsApp Send Button */}
           {inputMsg.trim() ? (
             <button
               onClick={handleSendManual}
-              className="p-2 rounded-full bg-emerald-500 hover:bg-emerald-600 text-gray-950 font-bold transition-transform active:scale-95 shadow-md flex items-center justify-center"
+              className="p-2 rounded-full bg-emerald-500 hover:bg-emerald-600 text-gray-950 font-bold transition-transform active:scale-95 shadow-md flex items-center justify-center cursor-pointer"
             >
               <Send className="w-3.5 h-3.5" />
             </button>
@@ -623,43 +634,129 @@ export default function WhatsAppLiveExperience() {
 
       </div>
 
-      {/* QR Code Modal for Real Phone Pairing */}
-      {qrModalOpen && (
+      {/* 🔗 Phone Number Pairing & QR Code Modal */}
+      {connectModalOpen && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#111b21] border border-agro-500/40 rounded-2xl p-5 max-w-md w-full shadow-2xl space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-[#202c33]">
+          <div className="bg-[#111b21] border border-emerald-500/40 rounded-2xl p-5 max-w-lg w-full shadow-2xl space-y-4 animate-message">
+            
+            <div className="flex items-center justify-between pb-3 border-b border-[#202c33]">
               <div className="flex items-center space-x-2">
-                <QrCode className="w-4 h-4 text-emerald-400" />
-                <h3 className="font-semibold text-sm text-gray-100">WhatsApp Web QR Scanner</h3>
+                <Smartphone className="w-5 h-5 text-emerald-400" />
+                <h3 className="font-bold text-sm text-gray-100 font-tamil">
+                  WhatsApp மொபைல் இணைப்பு (Pair WhatsApp)
+                </h3>
               </div>
               <button
-                onClick={() => setQrModalOpen(false)}
-                className="text-gray-400 hover:text-gray-100 font-bold text-xs"
+                onClick={() => setConnectModalOpen(false)}
+                className="p-1 rounded-lg hover:bg-white/10 text-gray-400 hover:text-gray-100 font-bold text-xs"
               >
                 ✕
               </button>
             </div>
 
-            <div className="text-center space-y-2.5">
-              <p className="text-xs text-gray-300">
-                மொபைல் WhatsApp-ல் <strong>Linked Devices ➔ Link a Device</strong> கொடுத்து ஸ்கேன் செய்யவும்.
-              </p>
+            {/* Switch between Phone Number Linking and QR Code */}
+            <div className="grid grid-cols-2 gap-2 bg-[#202c33] p-1 rounded-xl">
+              <button
+                onClick={() => setPairingMethod('phone')}
+                className={`py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                  pairingMethod === 'phone'
+                    ? 'bg-emerald-500 text-slate-950 shadow-md'
+                    : 'text-gray-300 hover:text-white'
+                }`}
+              >
+                <Phone className="w-3.5 h-3.5" />
+                <span>எண் மூலம் இணைக்க (Phone Code)</span>
+              </button>
 
-              <div className="flex justify-center p-3 bg-white rounded-xl mx-auto w-52 h-52 items-center shadow-inner">
-                {qrCodeData ? (
-                  <img src={qrCodeData} alt="WhatsApp QR Code" className="w-full h-full" />
+              <button
+                onClick={() => setPairingMethod('qr')}
+                className={`py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                  pairingMethod === 'qr'
+                    ? 'bg-emerald-500 text-slate-950 shadow-md'
+                    : 'text-gray-300 hover:text-white'
+                }`}
+              >
+                <QrCode className="w-3.5 h-3.5" />
+                <span>QR ஸ்கேனர் (QR Code)</span>
+              </button>
+            </div>
+
+            {/* Option 1: Official Phone Linking Code (Neonize PairPhone) */}
+            {pairingMethod === 'phone' && (
+              <div className="space-y-4 pt-1">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-gray-300 block">
+                    உங்கள் WhatsApp மொபைல் எண் (International Format with Country Code):
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={phoneInput}
+                      onChange={(e) => setPhoneInput(e.target.value)}
+                      placeholder="919843560889"
+                      className="flex-1 bg-[#0b141a] border border-emerald-500/30 rounded-xl px-3.5 py-2 text-sm text-white font-mono focus:outline-none focus:border-emerald-400"
+                    />
+                    <button
+                      onClick={handleGeneratePairingCode}
+                      disabled={pairingLoading}
+                      className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-md"
+                    >
+                      {pairingLoading ? (
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <KeyRound className="w-3.5 h-3.5" />
+                      )}
+                      <span>குறியீடு பெறுக</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* 8-Character Pairing Code Box */}
+                {pairingCode ? (
+                  <div className="p-4 rounded-xl bg-gradient-to-r from-emerald-950/60 to-[#0c182a] border border-emerald-500/50 text-center space-y-2 animate-message">
+                    <span className="text-[11px] text-gray-300 block">உங்கள் 8-இலக்க WhatsApp இணைப்பு குறியீடு:</span>
+                    <div className="text-2xl font-extrabold text-amber-300 font-mono tracking-widest py-1 bg-black/40 rounded-lg border border-amber-500/30">
+                      {pairingCode}
+                    </div>
+                    <div className="text-[11px] text-gray-300 text-left pt-2 space-y-1 border-t border-white/10 font-tamil">
+                      <p className="font-bold text-emerald-300">மொபைலில் இணைக்கும் முறை:</p>
+                      <p>1. WhatsApp ➔ Settings ➔ Linked Devices ➔ <strong>Link a Device</strong></p>
+                      <p>2. திரையின் கீழ் உள்ள <strong>Link with phone number instead</strong> கிளிக் செய்யவும்</p>
+                      <p>3. மேலே உள்ள <strong>{pairingCode}</strong> குறியீட்டை உள்ளிடவும்</p>
+                    </div>
+                  </div>
                 ) : (
-                  <div className="text-center text-gray-800 text-xs">
-                    <RefreshCw className="w-6 h-6 text-emerald-600 animate-spin mx-auto mb-2" />
-                    <span>QR குறியீடு தயாராகிறது...</span>
+                  <div className="p-3 rounded-xl bg-[#0b141a] border border-white/5 text-[11px] text-gray-400 space-y-1">
+                    <p className="font-semibold text-gray-300">💡 அதிகாரப்பூர்வ Neonize Phone Pairing:</p>
+                    <p>எண் உள்ளிட்டு &quot;குறியீடு பெறுக&quot; அழுத்தினால் 8-இலக்க நேரடி இணைப்புக் குறியீடு திரையில் தோன்றும்.</p>
                   </div>
                 )}
               </div>
-            </div>
+            )}
+
+            {/* Option 2: QR Scanner Fallback */}
+            {pairingMethod === 'qr' && (
+              <div className="text-center space-y-2.5 pt-1">
+                <p className="text-xs text-gray-300">
+                  மொபைல் WhatsApp-ல் <strong>Linked Devices ➔ Link a Device</strong> கொடுத்து ஸ்கேன் செய்யவும்.
+                </p>
+
+                <div className="flex justify-center p-3 bg-white rounded-xl mx-auto w-48 h-48 items-center shadow-inner">
+                  {qrCodeData ? (
+                    <img src={qrCodeData} alt="WhatsApp QR Code" className="w-full h-full" />
+                  ) : (
+                    <div className="text-center text-gray-800 text-xs">
+                      <RefreshCw className="w-6 h-6 text-emerald-600 animate-spin mx-auto mb-2" />
+                      <span>QR குறியீடு தயாராகிறது...</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             <button
-              onClick={() => setQrModalOpen(false)}
-              className="w-full py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-bold text-gray-950 text-xs transition-colors"
+              onClick={() => setConnectModalOpen(false)}
+              className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 font-bold text-gray-200 text-xs transition-colors"
             >
               மூடு (Close)
             </button>
